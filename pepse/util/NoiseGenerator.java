@@ -1,4 +1,4 @@
-package pepse.utils;
+package pepse.util;
 
 public class NoiseGenerator {
     private double seed;

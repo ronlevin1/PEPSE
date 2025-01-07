@@ -1,4 +1,4 @@
-package pepse.utils;
+package pepse.util;
 
 import danogl.*;
 import danogl.collisions.Layer;
