@@ -57,7 +57,7 @@ public class PepseGameManager extends GameManager {
                 imageReader);
         setCamera(new Camera(avatar, Vector2.ZERO,
                 windowController.getWindowDimensions(), windowController.getWindowDimensions()));
-        avatar.setTag("avatar");
+        avatar.setTag("avatar"); //
         gameObjects().addGameObject(avatar);
     }
 
