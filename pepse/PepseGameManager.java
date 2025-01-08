@@ -7,6 +7,7 @@ import danogl.gui.ImageReader;
 import danogl.gui.SoundReader;
 import danogl.gui.UserInputListener;
 import danogl.gui.WindowController;
+import danogl.gui.rendering.Camera;
 import danogl.util.Vector2;
 import pepse.util.Constants;
 import pepse.world.Avatar;
@@ -54,7 +55,8 @@ public class PepseGameManager extends GameManager {
                 terr.groundHeightAt(avatarX) - Constants.AVATAR_HEIGHT * 2;
         Avatar avatar = new Avatar(new Vector2(avatarX, avatarY), inputListener,
                 imageReader);
-        avatar.setCoordinateSpace(CoordinateSpace.CAMERA_COORDINATES);
+        setCamera(new Camera(avatar, Vector2.ZERO,
+                windowController.getWindowDimensions(), windowController.getWindowDimensions()));
         avatar.setTag("avatar");
         gameObjects().addGameObject(avatar);
     }

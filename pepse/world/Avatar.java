@@ -17,7 +17,7 @@ public class Avatar extends GameObject {
     private static final Color AVATAR_COLOR = Color.DARK_GRAY;
 
     private UserInputListener inputListener;
-    private ImageReader imageReader;
+//    private ImageReader imageReader;
 //    private final Renderable renderable;
 
     public Avatar(Vector2 pos, UserInputListener inputListener,
@@ -28,7 +28,7 @@ public class Avatar extends GameObject {
         physics().preventIntersectionsFromDirection(Vector2.ZERO);
         transform().setAccelerationY(GRAVITY);
         this.inputListener = inputListener;
-        this.imageReader = imageReader;
+//        this.imageReader = imageReader;
 //        this.renderable = new ImageRenderable(imageReader.readImage(
 //                "assets/idle_0.png", true).getImage());
     }
