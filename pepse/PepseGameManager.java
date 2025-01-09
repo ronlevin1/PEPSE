@@ -50,9 +50,9 @@ public class PepseGameManager extends GameManager {
         gameObjects().addGameObject(sunHalo, Layer.BACKGROUND);
         gameObjects().addGameObject(sun, Layer.BACKGROUND);
         // Avatar
-        float avatarX = 100; // top left corner dimensions
+        float avatarX = 0; // top left corner dimensions
         float avatarY =
-                terr.groundHeightAt(avatarX) - Constants.AVATAR_HEIGHT * 2;
+                terr.groundHeightAt(avatarX) - Constants.AVATAR_HEIGHT * Constants.N_2;
         Avatar avatar = new Avatar(new Vector2(avatarX, avatarY), inputListener,
                 imageReader);
         setCamera(new Camera(avatar, Vector2.ZERO,
