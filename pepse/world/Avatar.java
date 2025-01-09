@@ -3,10 +3,15 @@ package pepse.world;
 import danogl.GameObject;
 import danogl.gui.ImageReader;
 import danogl.gui.UserInputListener;
+import danogl.gui.rendering.AnimationRenderable;
 import danogl.gui.rendering.ImageRenderable;
+import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
+import pepse.util.Constants;
 
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Avatar extends GameObject {
     private static final float VELOCITY_X = 400;
@@ -18,9 +23,14 @@ public class Avatar extends GameObject {
     private static final float REST_ENERGY = 1;
     private static final float RUN_ENERGY = 0.5F;
     private static final float JUMP_ENERGY = 10;
-    public static final String RUN_STATE = "run";
-    public static final String JUMP_STATE = "jump";
+    private static final String RUN_STATE = "run";
+    private static final String JUMP_STATE = "jump";
+    private static final String IDLE_STATE = "idle";
+    private String avatarState;
     private float avatarEnergy = MAX_ENERGY;
+    private static final Renderable[] idlePics = new Renderable[4];
+    private static final Renderable[] jumpPics = new Renderable[4];
+    private static final Renderable[] runPics = new Renderable[6];
 
     private UserInputListener inputListener;
 
@@ -29,9 +39,54 @@ public class Avatar extends GameObject {
         super(pos, Vector2.ONES.mult(50),
                 new ImageRenderable(imageReader.readImage(
                         "assets/idle_0.png", true).getImage()));
+        //todo: change renderable to null
         physics().preventIntersectionsFromDirection(Vector2.ZERO);
         transform().setAccelerationY(GRAVITY);
         this.inputListener = inputListener;
+        int i = 0;
+        for (String path : List.of("assets/idle_0.png", "assets/idle_1.png",
+                "assets/idle_2.png", "assets/idle_3.png")) {
+            idlePics[i] =
+                    new ImageRenderable(imageReader.readImage(path, true).getImage());
+            i++;
+        }
+        i = 0;
+        for (String path : List.of("assets/jump_0.png", "assets/jump_1.png",
+                "assets/jump_2.png", "assets/jump_3.png")) {
+            jumpPics[i] =
+                    new ImageRenderable(imageReader.readImage(path, true).getImage());
+            i++;
+        }
+        i = 0;
+        for (String path : List.of("assets/run_0.png", "assets/run_1.png",
+                "assets/run_2.png", "assets/run_3.png", "assets/run_4.png",
+                "assets/run_5.png")) {
+            runPics[i] =
+                    new ImageRenderable(imageReader.readImage(path, true).getImage());
+            i++;
+        }
+        avatarState = IDLE_STATE;
+        changeAnimation();
+    }
+
+    private void changeAnimation() {
+        Renderable[] renderables = null;
+        switch (avatarState) {
+            case IDLE_STATE:
+                renderables = idlePics;
+                break;
+            case JUMP_STATE:
+                renderables = jumpPics;
+                break;
+            case RUN_STATE:
+                renderables = runPics;
+                break;
+            default:
+                renderables = idlePics;
+        }
+        AnimationRenderable animationRenderable =
+                new AnimationRenderable(renderables, Constants.N_2);
+        renderer().setRenderable(animationRenderable);
     }
 
     @Override
@@ -45,25 +100,38 @@ public class Avatar extends GameObject {
         if (inputListener.isKeyPressed(KeyEvent.VK_RIGHT) && runIsPossible)
             xVel += VELOCITY_X;
         transform().setVelocityX(xVel);
-        updateEnergy(RUN_STATE);
+        updateState(RUN_STATE);
         if (inputListener.isKeyPressed(KeyEvent.VK_SPACE)
                 && getVelocity().y() == 0 && jumpIsPossible) {
             transform().setVelocityY(VELOCITY_Y);
-            updateEnergy(JUMP_STATE);
+            updateState(JUMP_STATE);
         }
     }
 
-    private void updateEnergy(String action) {
+    private void updateState(String state) {
         boolean isNotRunning = getVelocity().x() == 0;
+        boolean isRunningLeft = getVelocity().x() < 0;
         boolean isNotJumping = getVelocity().y() == 0;
-        if (action.equals(RUN_STATE) && isNotJumping)
+        // run
+        if (state.equals(RUN_STATE) && isNotJumping) {
             avatarEnergy -= RUN_ENERGY;
+            avatarState = state;
+            changeAnimation();
+            if (isRunningLeft)
+                renderer().setIsFlippedHorizontally(true); // todo: flip back
+        }
         // jump
-        if (action.equals(JUMP_STATE) && isNotJumping)
+        if (state.equals(JUMP_STATE) && isNotJumping) {
             avatarEnergy -= JUMP_ENERGY;
+            avatarState = state;
+            changeAnimation();
+        }
         // rest
-        if (isNotRunning && isNotJumping)
+        if (isNotRunning && isNotJumping) {
             avatarEnergy = Math.min(avatarEnergy + REST_ENERGY, MAX_ENERGY);
+            avatarState = state;
+            changeAnimation();
+        }
     }
 
     public void addEnergyFromOtherObject(float energy) {
