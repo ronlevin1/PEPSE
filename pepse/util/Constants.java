@@ -8,4 +8,9 @@ public class Constants {
      */
     public static final int N_2 = 2;
     public static final int N_3 = 3;
+    // More Layers
+    /** between BACKGROUND (Sun) and STATIC_OBJECTS (Blocks).
+     * Avatar is in front of Blocks on default layer.
+     */
+    public static final int LAYER_LEAF = -50;
 }

@@ -1,6 +1,7 @@
 package pepse.world;
 
 import danogl.GameObject;
+import danogl.collisions.Collision;
 import danogl.gui.ImageReader;
 import danogl.gui.UserInputListener;
 import danogl.gui.rendering.AnimationRenderable;
@@ -31,15 +32,14 @@ public class Avatar extends GameObject {
     private static final Renderable[] idlePics = new Renderable[4];
     private static final Renderable[] jumpPics = new Renderable[4];
     private static final Renderable[] runPics = new Renderable[6];
+    // Observers
+    private List<AvatarListener> avatarListeners = new ArrayList<>();
 
     private UserInputListener inputListener;
 
     public Avatar(Vector2 pos, UserInputListener inputListener,
                   ImageReader imageReader) {
-        super(pos, Vector2.ONES.mult(50),
-                new ImageRenderable(imageReader.readImage(
-                        "assets/idle_0.png", true).getImage()));
-        //todo: change renderable to null
+        super(pos, Vector2.ONES.mult(50), null);
         physics().preventIntersectionsFromDirection(Vector2.ZERO);
         transform().setAccelerationY(GRAVITY);
         this.inputListener = inputListener;
@@ -84,6 +84,7 @@ public class Avatar extends GameObject {
             default:
                 renderables = idlePics;
         }
+        // todo: flip horizontally when running
         AnimationRenderable animationRenderable =
                 new AnimationRenderable(renderables, Constants.N_2);
         renderer().setRenderable(animationRenderable);
@@ -134,7 +135,35 @@ public class Avatar extends GameObject {
         }
     }
 
+    //todo
+    private void doJump() {
+//        transform().setVelocityY(VELOCITY_Y);
+        notifyListeners();
+    }
+
     public void addEnergyFromOtherObject(float energy) {
         avatarEnergy = Math.min(avatarEnergy + energy, MAX_ENERGY);
+    }
+
+    public void addListener(AvatarListener listener) {
+        avatarListeners.add(listener);
+    }
+
+    public void removeListener(AvatarListener listener) {
+        avatarListeners.remove(listener);
+    }
+
+    public void notifyListeners() {
+        for (AvatarListener listener : avatarListeners) {
+            listener.onAvatarJump();
+        }
+    }
+
+    @Override
+    public void onCollisionEnter(GameObject other, Collision collision) {
+        super.onCollisionEnter(other, collision);
+        if(other.getTag().equals("block")){
+            this.transform().setVelocityY(0);
+        }
     }
 }
