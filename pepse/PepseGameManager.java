@@ -45,6 +45,12 @@ public class PepseGameManager extends GameManager {
         List<Block> blockList = terr.createInRange(leftMostX, rightMostX);
         for (Block block : blockList) {
             gameObjects().addGameObject(block, Layer.STATIC_OBJECTS);
+            if (rand.nextDouble() < TREE_PROBABILITY){
+                // create tree on top of this block
+                int x = (int) block.getTopLeftCorner().x();
+                int y = (int) terr.groundHeightAt(x);
+
+            }
         }
         // Night
         GameObject night = Night.create(windowDimensions,
