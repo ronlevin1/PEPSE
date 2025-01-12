@@ -8,7 +8,7 @@ import danogl.util.Vector2;
 import java.awt.*;
 
 public class Leaf extends GameObject{
-    private Color leafColor = new Color(50, 200, 30);
+    private static Color leafColor = new Color(50, 200, 30);
 
     private static final int SIZE = 30;
 

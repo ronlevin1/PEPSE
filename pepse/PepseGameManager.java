@@ -19,8 +19,12 @@ import pepse.world.daynight.Sun;
 import pepse.world.daynight.SunHalo;
 
 import java.util.List;
+import java.util.Random;
 
 public class PepseGameManager extends GameManager {
+    private Random rand = new Random();
+    private int leftMostX;
+    private int rightMostX;
 
     @Override
     public void initializeGame(ImageReader imageReader,
@@ -34,9 +38,11 @@ public class PepseGameManager extends GameManager {
         GameObject sky = Sky.create(windowDimensions);
         gameObjects().addGameObject(sky, Layer.BACKGROUND);
         // Terrain with Blocks
-        Terrain terr = new Terrain(windowDimensions, 0);
-        List<Block> blockList = terr.createInRange(0,
-                (int) windowDimensions.x());
+        int seed = (int) rand.nextGaussian() * Constants.N_10;
+        Terrain terr = new Terrain(windowDimensions, seed);
+        leftMostX = (int) -windowDimensions.x() / Constants.N_2;
+        rightMostX = (int) windowDimensions.x();
+        List<Block> blockList = terr.createInRange(leftMostX, rightMostX);
         for (Block block : blockList) {
             gameObjects().addGameObject(block, Layer.STATIC_OBJECTS);
         }
@@ -53,10 +59,12 @@ public class PepseGameManager extends GameManager {
         float avatarX = 0; // top left corner dimensions
         float avatarY =
                 terr.groundHeightAt(avatarX) - Constants.AVATAR_HEIGHT * Constants.N_2;
-        Avatar avatar = new Avatar(new Vector2(avatarX, avatarY), inputListener,
+        Avatar avatar = new Avatar(new Vector2(avatarX, avatarY),
+                inputListener,
                 imageReader);
         setCamera(new Camera(avatar, Vector2.ZERO,
-                windowController.getWindowDimensions(), windowController.getWindowDimensions()));
+                windowController.getWindowDimensions(),
+                windowController.getWindowDimensions()));
         avatar.setTag("avatar"); //
         gameObjects().addGameObject(avatar);
     }
