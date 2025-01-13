@@ -69,6 +69,7 @@ public class Avatar extends GameObject {
         changeAnimation();
     }
 
+    //todo: fix animations
     private void changeAnimation() {
         Renderable[] renderables = null;
         switch (avatarState) {
@@ -162,7 +163,7 @@ public class Avatar extends GameObject {
     @Override
     public void onCollisionEnter(GameObject other, Collision collision) {
         super.onCollisionEnter(other, collision);
-        if(other.getTag().equals("block")){
+        if (other.getTag().equals(Constants.BLOCK)) {
             this.transform().setVelocityY(0);
         }
     }

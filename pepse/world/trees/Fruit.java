@@ -31,4 +31,5 @@ public class Fruit extends GameObject {
         Renderable renderable = new OvalRenderable(FRUIT_COLOR);
         return new Fruit(topLeftCorner, new Vector2(RADIUS, RADIUS), renderable);
     }
+    //todo: regenerate fruit after REGENERATION_CYCLE
 }

@@ -33,6 +33,7 @@ public class PepseGameManager extends GameManager {
                                SoundReader soundReader,
                                UserInputListener inputListener,
                                WindowController windowController) {
+        // todo: shorten method
         super.initializeGame(imageReader, soundReader, inputListener,
                 windowController);
         Vector2 windowDimensions = windowController.getWindowDimensions();
@@ -48,14 +49,14 @@ public class PepseGameManager extends GameManager {
         for (Block block : blockList) {
             gameObjects().addGameObject(block, Layer.STATIC_OBJECTS);
         }
-        //todo: create trees with Flora
+        // Trees
         HeightProvider groundHeightProvider = terr::groundHeightAt;
         Flora flora = new Flora(groundHeightProvider);
         List<List<GameObject>> trees = flora.createInRange(leftMostX,
                 rightMostX);
-        for (List<GameObject> tree: trees){
-            for (GameObject treeObject: tree){
-                int curLayer= Layer.DEFAULT;
+        for (List<GameObject> tree : trees) {
+            for (GameObject treeObject : tree) {
+                int curLayer = Layer.DEFAULT;
                 if (treeObject.getTag().equals(Constants.TREE_TRUNK))
                     curLayer = Layer.STATIC_OBJECTS;
                 else if (treeObject.getTag().equals(Constants.LEAF))
