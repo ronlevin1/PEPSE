@@ -13,5 +13,14 @@ public class Constants {
     /** between BACKGROUND (Sun) and STATIC_OBJECTS (Blocks).
      * Avatar is in front of Blocks on default layer.
      */
-    public static final int LAYER_LEAF = -50;
+    public static final int LEAF_OR_FRUIT_SIZE = 28;
+
+    /**
+     * Object tags
+     */
+    public static final String BLOCK = "block";
+    public static final String TREE_TRUNK = "treeTrunk";
+    public static final String LEAF = "leaf";
+    public static final String FRUIT = "fruit";
+    public static final String AVATAR = "avatar";
 }

@@ -4,6 +4,7 @@ import danogl.gui.rendering.RectangleRenderable;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
 import pepse.util.ColorSupplier;
+import pepse.util.Constants;
 import pepse.util.NoiseGenerator;
 
 import java.awt.*;
@@ -43,7 +44,7 @@ public class Terrain {
                         new RectangleRenderable(ColorSupplier.approximateColor(BASE_GROUND_COLOR));
                 int curY = topBlockY + j * Block.SIZE;
                 Block blk = new Block(new Vector2(curX, curY), rend);
-                blk.setTag("block");
+                blk.setTag(Constants.BLOCK);
                 lst.add(blk);
             }
         }

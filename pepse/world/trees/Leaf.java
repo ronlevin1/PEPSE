@@ -4,13 +4,13 @@ import danogl.GameObject;
 import danogl.gui.rendering.RectangleRenderable;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
+import pepse.util.Constants;
 
 import java.awt.*;
 
 public class Leaf extends GameObject{
     private static Color leafColor = new Color(50, 200, 30);
-
-    private static final int SIZE = 30;
+    private static final int SIZE = Constants.LEAF_OR_FRUIT_SIZE;
 
     private Leaf(Vector2 topLeftCorner, Renderable renderable) {
         super(topLeftCorner, Vector2.ONES.mult(SIZE), renderable);

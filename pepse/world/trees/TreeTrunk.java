@@ -12,9 +12,6 @@ import java.awt.*;
 public class TreeTrunk extends GameObject {
     private static final Color TRUNK_COLOR = new Color(100, 50, 20);
     private static final int WIDTH = Block.SIZE;
-    private static final int MAX_HEIGHT = Block.SIZE * 10;
-    private static final int MIN_HEIGHT = Block.SIZE * 2;
-    private int height;
 
     /**
      * Construct a new GameObject instance.
@@ -29,16 +26,10 @@ public class TreeTrunk extends GameObject {
         super(topLeftCorner, dimensions, renderable);
         physics().preventIntersectionsFromDirection(Vector2.ZERO);
         physics().setMass(GameObjectPhysics.IMMOVABLE_MASS);
-        //todo: set tag to "treeTrunk"
     }
 
-    public static GameObject create(Vector2 topLeftCorner) {
-        int height = (int) (Math.random() * (MAX_HEIGHT - MIN_HEIGHT) + MIN_HEIGHT);
+    public static GameObject create(Vector2 topLeftCorner, int height) {
         Renderable renderable = new RectangleRenderable(TRUNK_COLOR);
         return new TreeTrunk(topLeftCorner, new Vector2(WIDTH, height), renderable);
-    }
-
-    public int getHeight() {
-        return height;
     }
 }

@@ -17,6 +17,8 @@ import pepse.world.Terrain;
 import pepse.world.daynight.Night;
 import pepse.world.daynight.Sun;
 import pepse.world.daynight.SunHalo;
+import pepse.world.trees.Flora;
+import pepse.world.trees.HeightProvider;
 
 import java.util.List;
 import java.util.Random;
@@ -38,18 +40,27 @@ public class PepseGameManager extends GameManager {
         GameObject sky = Sky.create(windowDimensions);
         gameObjects().addGameObject(sky, Layer.BACKGROUND);
         // Terrain with Blocks
-        int seed = (int) rand.nextGaussian() * Constants.N_10;
+        int seed = (int) (rand.nextGaussian() * Constants.N_10);
         Terrain terr = new Terrain(windowDimensions, seed);
         leftMostX = (int) -windowDimensions.x() / Constants.N_2;
         rightMostX = (int) windowDimensions.x();
         List<Block> blockList = terr.createInRange(leftMostX, rightMostX);
         for (Block block : blockList) {
             gameObjects().addGameObject(block, Layer.STATIC_OBJECTS);
-            if (rand.nextDouble() < TREE_PROBABILITY){
-                // create tree on top of this block
-                int x = (int) block.getTopLeftCorner().x();
-                int y = (int) terr.groundHeightAt(x);
-
+        }
+        //todo: create trees with Flora
+        HeightProvider groundHeightProvider = terr::groundHeightAt;
+        Flora flora = new Flora(groundHeightProvider);
+        List<List<GameObject>> trees = flora.createInRange(leftMostX,
+                rightMostX);
+        for (List<GameObject> tree: trees){
+            for (GameObject treeObject: tree){
+                int curLayer= Layer.DEFAULT;
+                if (treeObject.getTag().equals(Constants.TREE_TRUNK))
+                    curLayer = Layer.STATIC_OBJECTS;
+                else if (treeObject.getTag().equals(Constants.LEAF))
+                    curLayer = Layer.UI;
+                gameObjects().addGameObject(treeObject, curLayer);
             }
         }
         // Night
@@ -71,7 +82,7 @@ public class PepseGameManager extends GameManager {
         setCamera(new Camera(avatar, Vector2.ZERO,
                 windowController.getWindowDimensions(),
                 windowController.getWindowDimensions()));
-        avatar.setTag("avatar"); //
+        avatar.setTag(Constants.AVATAR);
         gameObjects().addGameObject(avatar);
     }
 

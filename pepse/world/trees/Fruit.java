@@ -11,7 +11,7 @@ import java.awt.*;
 
 public class Fruit extends GameObject {
     private static final Color FRUIT_COLOR = new Color(174, 28, 28);
-    private static final int RADIUS = Block.SIZE;
+    private static final int RADIUS = Constants.LEAF_OR_FRUIT_SIZE;
     private static final int REGENERATION_CYCLE = Constants.CYCLE_LENGTH;
 
     /**
