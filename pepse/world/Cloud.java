@@ -74,6 +74,7 @@ public class Cloud extends GameObject {
         cloudObjects.add(cloudBlock);
     }
 
+
     public static List<GameObject> getCloudObjects() {
         return cloudObjects;
     }
