@@ -125,13 +125,15 @@ public class Avatar extends GameObject {
                 renderer().setIsFlippedHorizontally(true); // todo: flip back
         }
         // jump
-        if (state.equals(JUMP_STATE) && isNotJumping) {
+//        if (state.equals(JUMP_STATE) && isNotJumping) {
+        if (state.equals(JUMP_STATE)) {
             avatarEnergy -= JUMP_ENERGY;
             avatarState = state;
             changeAnimation();
         }
         // rest
         if (isNotRunning && isNotJumping) {
+            // todo: delay energy restoration to 1s
             avatarEnergy = Math.min(avatarEnergy + REST_ENERGY, MAX_ENERGY);
             avatarState = state;
             changeAnimation();
