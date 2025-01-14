@@ -2,6 +2,7 @@ package pepse.world.trees;
 
 import danogl.GameObject;
 import danogl.collisions.Collision;
+import danogl.components.ScheduledTask;
 import danogl.gui.rendering.OvalRenderable;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
@@ -15,25 +16,33 @@ public class Fruit extends GameObject {
     private static final int RADIUS = Constants.LEAF_OR_FRUIT_SIZE;
     private static final int REGENERATION_CYCLE = Constants.CYCLE_LENGTH;
     private static final float FRUIT_ENERGY = Constants.N_10;
+    private final Renderable renderable;
     private Consumer<Float> avatarEnergyConsumer;
+    private boolean isCollisionEnabed = true;
 
     /**
      * Construct a new GameObject instance.
      *
-     * @param topLeftCorner        Position of the object, in window coordinates
+     * @param topLeftCorner        Position of the object, in window
+     *                             coordinates
      *                             (pixels).
-     *                             Note that (0,0) is the top-left corner of the
+     *                             Note that (0,0) is the top-left corner of
+     *                             the
      *                             window.
      * @param dimensions           Width and height in window coordinates.
-     * @param renderable           The renderable representing the object. Can be
+     * @param renderable           The renderable representing the object.
+     *                             Can be
      *                             null, in which case
      *                             the GameObject will not be rendered.
      * @param avatarEnergyConsumer
      */
     private Fruit(Vector2 topLeftCorner, Vector2 dimensions,
-                  Renderable renderable, Consumer<Float> avatarEnergyConsumer) {
+                  Renderable renderable,
+                  Consumer<Float> avatarEnergyConsumer) {
         super(topLeftCorner, dimensions, renderable);
         this.avatarEnergyConsumer = this.avatarEnergyConsumer;
+        this.renderable = renderable;
+        this.setCollisionEnabled(true);
     }
 
     public static GameObject create(Vector2 topLeftCorner,
@@ -46,9 +55,23 @@ public class Fruit extends GameObject {
     @Override
     public void onCollisionEnter(GameObject other, Collision collision) {
         super.onCollisionEnter(other, collision);
-        if (other.getTag().equals(Constants.AVATAR)) {
+        if (isCollisionEnabed && other.getTag().equals(Constants.AVATAR)) {
             avatarEnergyConsumer.accept(FRUIT_ENERGY);
-            // todo: make fruit disappear and reappear after REGENERATION_CYCLE
+            // schedule task to disappear and reappear
+            this.renderer().setRenderable(null); // Make the fruit disappear
+            this.setCollisionEnabled(false); // Disable collision
+            new ScheduledTask(this, REGENERATION_CYCLE, false,
+                    this::regenerateFruit);
         }
+    }
+
+    private void regenerateFruit() {
+        // Make the fruit reappear
+        this.renderer().setRenderable(this.renderable); //
+        this.setCollisionEnabled(true);
+    }
+
+    private void setCollisionEnabled(boolean bool) {
+        this.isCollisionEnabed = bool;
     }
 }
