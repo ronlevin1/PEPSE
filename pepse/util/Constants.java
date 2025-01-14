@@ -9,6 +9,7 @@ public class Constants {
      */
     public static final int N_2 = 2;
     public static final int N_3 = 3;
+    public static final int N_4 = 4;
     public static final int N_10 = 10;
     // More Layers
     /** between BACKGROUND (Sun) and STATIC_OBJECTS (Blocks).
@@ -24,4 +25,5 @@ public class Constants {
     public static final String LEAF = "leaf";
     public static final String FRUIT = "fruit";
     public static final String AVATAR = "avatar";
+    public static final String CLOUD = "cloud";
 }

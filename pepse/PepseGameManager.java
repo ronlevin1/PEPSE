@@ -11,10 +11,7 @@ import danogl.gui.rendering.Camera;
 import danogl.gui.rendering.TextRenderable;
 import danogl.util.Vector2;
 import pepse.util.Constants;
-import pepse.world.Avatar;
-import pepse.world.Block;
-import pepse.world.Sky;
-import pepse.world.Terrain;
+import pepse.world.*;
 import pepse.world.daynight.Night;
 import pepse.world.daynight.Sun;
 import pepse.world.daynight.SunHalo;
@@ -39,14 +36,28 @@ public class PepseGameManager extends GameManager {
         super.initializeGame(imageReader, soundReader, inputListener,
                 windowController);
         Vector2 windowDimensions = windowController.getWindowDimensions();
+        leftMostX = (int) -windowDimensions.x() / Constants.N_2;
+        rightMostX = (int) windowDimensions.x();
         // Sky
         GameObject sky = Sky.create(windowDimensions);
         gameObjects().addGameObject(sky, Layer.BACKGROUND);
+
+        // Sun + SunHalo
+        GameObject sun = Sun.create(windowDimensions, Constants.CYCLE_LENGTH);
+        GameObject sunHalo = SunHalo.create(sun);
+        gameObjects().addGameObject(sunHalo, Layer.BACKGROUND);
+        gameObjects().addGameObject(sun, Layer.BACKGROUND);
+        // Cloud
+        GameObject cloud = Cloud.create(new Vector2(leftMostX,
+                windowDimensions.y() / Constants.N_10), leftMostX, rightMostX);
+        for (GameObject cloudObject : Cloud.getCloudObjects()) {
+            cloudObject.setTag(Constants.CLOUD);
+            gameObjects().addGameObject(cloudObject, Layer.BACKGROUND);
+        }
+
         // Terrain with Blocks
         int seed = (int) (rand.nextGaussian() * Constants.N_10);
         Terrain terr = new Terrain(windowDimensions, seed);
-        leftMostX = (int) -windowDimensions.x() / Constants.N_2;
-        rightMostX = (int) windowDimensions.x();
         List<Block> blockList = terr.createInRange(leftMostX, rightMostX);
         for (Block block : blockList) {
             gameObjects().addGameObject(block, Layer.STATIC_OBJECTS);
@@ -65,7 +76,8 @@ public class PepseGameManager extends GameManager {
         gameObjects().addGameObject(avatar);
         // Trees
         HeightProvider groundHeightProvider = terr::groundHeightAt;
-        Consumer<Float> avatarEnergyConsumer = avatar::addEnergyFromOtherObject;
+        Consumer<Float> avatarEnergyConsumer =
+                avatar::addEnergyFromOtherObject;
         Flora flora = new Flora(groundHeightProvider, avatarEnergyConsumer);
         List<List<GameObject>> trees = flora.createInRange(leftMostX,
                 rightMostX);
@@ -83,12 +95,6 @@ public class PepseGameManager extends GameManager {
         GameObject night = Night.create(windowDimensions,
                 Constants.CYCLE_LENGTH);
         gameObjects().addGameObject(night, Layer.UI);
-        // Sun + SunHalo
-        GameObject sun = Sun.create(windowDimensions, Constants.CYCLE_LENGTH);
-        GameObject sunHalo = SunHalo.create(sun);
-        gameObjects().addGameObject(sunHalo, Layer.BACKGROUND);
-        gameObjects().addGameObject(sun, Layer.BACKGROUND);
-
         // UIManager
         UIManager uiManager = UIManager.getInstance(Vector2.ONES,
                 Vector2.ONES.mult(50), avatar::getAvatarEnergy);
