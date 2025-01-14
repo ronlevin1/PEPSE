@@ -48,7 +48,8 @@ public class PepseGameManager extends GameManager {
         gameObjects().addGameObject(sunHalo, Layer.BACKGROUND);
         gameObjects().addGameObject(sun, Layer.BACKGROUND);
         // Cloud
-        GameObject cloud = Cloud.create(new Vector2(leftMostX,
+        float cloudInitialX = -200;
+        GameObject cloud = Cloud.create(new Vector2(cloudInitialX,
                 windowDimensions.y() / Constants.N_10), leftMostX, rightMostX);
         for (GameObject cloudObject : Cloud.getCloudObjects()) {
             cloudObject.setTag(Constants.CLOUD);
