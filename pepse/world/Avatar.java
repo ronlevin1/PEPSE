@@ -24,11 +24,13 @@ public class Avatar extends GameObject {
     private static final float REST_ENERGY = 1;
     private static final float RUN_ENERGY = 0.5F;
     private static final float JUMP_ENERGY = 10;
+    // state constants
     private static final String RUN_STATE = "run";
     private static final String JUMP_STATE = "jump";
     private static final String IDLE_STATE = "idle";
-    private String avatarState;
+    // state variables
     private float avatarEnergy = MAX_ENERGY;
+    private String avatarState;
     private static final Renderable[] idlePics = new Renderable[4];
     private static final Renderable[] jumpPics = new Renderable[4];
     private static final Renderable[] runPics = new Renderable[6];
@@ -144,6 +146,10 @@ public class Avatar extends GameObject {
 
     public void addEnergyFromOtherObject(float energy) {
         avatarEnergy = Math.min(avatarEnergy + energy, MAX_ENERGY);
+    }
+
+    public float getAvatarEnergy() {
+        return avatarEnergy;
     }
 
     public void addListener(AvatarListener listener) {

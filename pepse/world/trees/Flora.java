@@ -1,10 +1,7 @@
 package pepse.world.trees;
 
 import danogl.GameObject;
-import danogl.gui.rendering.RectangleRenderable;
-import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
-import pepse.util.ColorSupplier;
 import pepse.util.Constants;
 import pepse.world.Block;
 
@@ -35,7 +32,7 @@ public class Flora {
         for (int i = 0; i < numOfCols; i++) {
             int curX = minX + i * Block.SIZE;
             int groundHeightAtX = (int)
-                    (Math.floor(heightProvider.getHeight(curX) / Block.SIZE) * Block.SIZE);
+                    (Math.floor(heightProvider.getFloat(curX) / Block.SIZE) * Block.SIZE);
             if (rand.nextDouble() <= TREE_PROBABILITY) {
                 List<GameObject> tree = createSingleTree(curX,
                         groundHeightAtX);

@@ -8,6 +8,7 @@ import danogl.gui.SoundReader;
 import danogl.gui.UserInputListener;
 import danogl.gui.WindowController;
 import danogl.gui.rendering.Camera;
+import danogl.gui.rendering.TextRenderable;
 import danogl.util.Vector2;
 import pepse.util.Constants;
 import pepse.world.Avatar;
@@ -85,6 +86,10 @@ public class PepseGameManager extends GameManager {
                 windowController.getWindowDimensions()));
         avatar.setTag(Constants.AVATAR);
         gameObjects().addGameObject(avatar);
+        // UIManager
+        UIManager uiManager = UIManager.getInstance(Vector2.ONES,
+                Vector2.ONES.mult(50), avatar::getAvatarEnergy);
+        gameObjects().addGameObject(uiManager, Layer.UI);
     }
 
     public static void main(String[] args) {
