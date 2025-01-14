@@ -8,6 +8,7 @@ import pepse.world.Block;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Consumer;
 
 public class Flora {
     private final List<List<GameObject>> trees;
@@ -17,11 +18,14 @@ public class Flora {
     private static final int MAX_HEIGHT = Block.SIZE * 7;
     private static final int MIN_HEIGHT = Block.SIZE * 4;
     private final HeightProvider heightProvider;
+    private final Consumer<Float> avatarEnergyConsumer;
     private Random rand = new Random();
 
-    public Flora(HeightProvider heightProvider) {
+    public Flora(HeightProvider heightProvider,
+                 Consumer<Float> avatarEnergyConsumer) {
         this.trees = new ArrayList<>();
         this.heightProvider = heightProvider;
+        this.avatarEnergyConsumer = avatarEnergyConsumer;
     }
 
     public List<List<GameObject>> createInRange(int minX, int maxX) {
@@ -78,7 +82,8 @@ public class Flora {
                     leaf.setTag(Constants.LEAF);
                     treeObjects.add(leaf);
                 } else if (chance <= FRUIT_PROBABILITY) {
-                    GameObject fruit = Fruit.create(topLeftCorner);
+                    GameObject fruit = Fruit.create(topLeftCorner,
+                            avatarEnergyConsumer);
                     fruit.setTag(Constants.FRUIT);
                     treeObjects.add(fruit);
                 }

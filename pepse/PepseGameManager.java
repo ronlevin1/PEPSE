@@ -23,6 +23,7 @@ import pepse.world.trees.HeightProvider;
 
 import java.util.List;
 import java.util.Random;
+import java.util.function.Consumer;
 
 public class PepseGameManager extends GameManager {
     private Random rand = new Random();
@@ -50,9 +51,22 @@ public class PepseGameManager extends GameManager {
         for (Block block : blockList) {
             gameObjects().addGameObject(block, Layer.STATIC_OBJECTS);
         }
+        // Avatar
+        float avatarX = 0; // top left corner dimensions
+        float avatarY =
+                terr.groundHeightAt(avatarX) - Constants.AVATAR_HEIGHT * Constants.N_2;
+        Avatar avatar = new Avatar(new Vector2(avatarX, avatarY),
+                inputListener,
+                imageReader);
+        setCamera(new Camera(avatar, Vector2.ZERO,
+                windowController.getWindowDimensions(),
+                windowController.getWindowDimensions()));
+        avatar.setTag(Constants.AVATAR);
+        gameObjects().addGameObject(avatar);
         // Trees
         HeightProvider groundHeightProvider = terr::groundHeightAt;
-        Flora flora = new Flora(groundHeightProvider);
+        Consumer<Float> avatarEnergyConsumer = avatar::addEnergyFromOtherObject;
+        Flora flora = new Flora(groundHeightProvider, avatarEnergyConsumer);
         List<List<GameObject>> trees = flora.createInRange(leftMostX,
                 rightMostX);
         for (List<GameObject> tree : trees) {
@@ -74,18 +88,7 @@ public class PepseGameManager extends GameManager {
         GameObject sunHalo = SunHalo.create(sun);
         gameObjects().addGameObject(sunHalo, Layer.BACKGROUND);
         gameObjects().addGameObject(sun, Layer.BACKGROUND);
-        // Avatar
-        float avatarX = 0; // top left corner dimensions
-        float avatarY =
-                terr.groundHeightAt(avatarX) - Constants.AVATAR_HEIGHT * Constants.N_2;
-        Avatar avatar = new Avatar(new Vector2(avatarX, avatarY),
-                inputListener,
-                imageReader);
-        setCamera(new Camera(avatar, Vector2.ZERO,
-                windowController.getWindowDimensions(),
-                windowController.getWindowDimensions()));
-        avatar.setTag(Constants.AVATAR);
-        gameObjects().addGameObject(avatar);
+
         // UIManager
         UIManager uiManager = UIManager.getInstance(Vector2.ONES,
                 Vector2.ONES.mult(50), avatar::getAvatarEnergy);
