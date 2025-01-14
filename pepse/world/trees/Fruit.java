@@ -40,7 +40,7 @@ public class Fruit extends GameObject {
                   Renderable renderable,
                   Consumer<Float> avatarEnergyConsumer) {
         super(topLeftCorner, dimensions, renderable);
-        this.avatarEnergyConsumer = this.avatarEnergyConsumer;
+        this.avatarEnergyConsumer = avatarEnergyConsumer;
         this.renderable = renderable;
         this.setCollisionEnabled(true);
     }
