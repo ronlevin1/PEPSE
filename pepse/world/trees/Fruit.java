@@ -6,6 +6,7 @@ import danogl.components.ScheduledTask;
 import danogl.gui.rendering.OvalRenderable;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
+import pepse.util.ColorSupplier;
 import pepse.util.Constants;
 
 import java.awt.*;
@@ -20,22 +21,6 @@ public class Fruit extends GameObject {
     private Consumer<Float> avatarEnergyConsumer;
     private boolean isCollisionEnabed = true;
 
-    /**
-     * Construct a new GameObject instance.
-     *
-     * @param topLeftCorner        Position of the object, in window
-     *                             coordinates
-     *                             (pixels).
-     *                             Note that (0,0) is the top-left corner of
-     *                             the
-     *                             window.
-     * @param dimensions           Width and height in window coordinates.
-     * @param renderable           The renderable representing the object.
-     *                             Can be
-     *                             null, in which case
-     *                             the GameObject will not be rendered.
-     * @param avatarEnergyConsumer
-     */
     private Fruit(Vector2 topLeftCorner, Vector2 dimensions,
                   Renderable renderable,
                   Consumer<Float> avatarEnergyConsumer) {
@@ -47,7 +32,8 @@ public class Fruit extends GameObject {
 
     public static GameObject create(Vector2 topLeftCorner,
                                     Consumer<Float> avatarEnergyConsumer) {
-        Renderable renderable = new OvalRenderable(FRUIT_COLOR);
+        Renderable renderable =
+                new OvalRenderable(ColorSupplier.approximateColor(FRUIT_COLOR, Constants.COLOR_DELTA));
         return new Fruit(topLeftCorner, new Vector2(RADIUS, RADIUS),
                 renderable, avatarEnergyConsumer);
     }

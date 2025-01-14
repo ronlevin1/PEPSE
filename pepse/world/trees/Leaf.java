@@ -6,13 +6,15 @@ import danogl.components.Transition;
 import danogl.gui.rendering.RectangleRenderable;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
+import pepse.util.ColorSupplier;
 import pepse.util.Constants;
 import pepse.world.Block;
 
 import java.awt.*;
 
 public class Leaf extends GameObject {
-    private static final Color leafColor = new Color(50, 200, 30);
+    private static final Color LEAF_BASE_COLOR = new Color(50, 200, 30);
+
     private static final int SIZE = Constants.LEAF_OR_FRUIT_SIZE;
     private static final float ANGLE_STARTING_VAL = -3 * (float) Math.PI;
     private static final float ANGLE_ENDING_VAL = 3 * (float) Math.PI;
@@ -27,7 +29,8 @@ public class Leaf extends GameObject {
     }
 
     public static GameObject create(Vector2 topLeftCorner) {
-        Renderable renderable = new RectangleRenderable(leafColor);
+        Renderable renderable =
+                new RectangleRenderable(ColorSupplier.approximateColor(LEAF_BASE_COLOR, Constants.COLOR_DELTA));
         return new Leaf(topLeftCorner, renderable);
     }
 

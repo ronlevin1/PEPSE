@@ -13,9 +13,9 @@ import java.util.function.Consumer;
 public class Flora {
     private final List<List<GameObject>> trees;
     private static final double TREE_PROBABILITY = 0.1;
-    private static final double LEAF_PROBABILITY = 0.8;
+    private static final double LEAF_PROBABILITY = 0.75;
     private static final double FRUIT_PROBABILITY = 0.1;
-    private static final int MAX_HEIGHT = Block.SIZE * 7;
+    private static final int MAX_HEIGHT = Block.SIZE * 8;
     private static final int MIN_HEIGHT = Block.SIZE * 4;
     private final HeightProvider heightProvider;
     private final Consumer<Float> avatarEnergyConsumer;
@@ -30,8 +30,8 @@ public class Flora {
 
     public List<List<GameObject>> createInRange(int minX, int maxX) {
         // todo change return val in sign?
-        minX = (int) (Math.floor(minX / Block.SIZE) * Block.SIZE);
-        maxX = (int) (Math.ceil(maxX / Block.SIZE) * Block.SIZE);
+        minX = (int) (Math.floor((double) minX / Block.SIZE) * Block.SIZE);
+        maxX = (int) (Math.ceil((double) maxX / Block.SIZE) * Block.SIZE);
         int numOfCols = (maxX - minX) / Block.SIZE;
         for (int i = 0; i < numOfCols; i++) {
             int curX = minX + i * Block.SIZE;
