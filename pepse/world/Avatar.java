@@ -28,6 +28,7 @@ public class Avatar extends GameObject {
     private static final String RUN_STATE = "run";
     private static final String JUMP_STATE = "jump";
     private static final String IDLE_STATE = "idle";
+    public static final double TIME_BETWEEN_CLIPS = 0.2;
     // state variables
     private float avatarEnergy = MAX_ENERGY;
     private String avatarState;
@@ -71,28 +72,6 @@ public class Avatar extends GameObject {
         changeAnimation();
     }
 
-    //todo: fix animations
-    private void changeAnimation() {
-        Renderable[] renderables;
-        switch (avatarState) {
-            case IDLE_STATE:
-                renderables = idlePics;
-                break;
-            case JUMP_STATE:
-                renderables = jumpPics;
-                break;
-            case RUN_STATE:
-                renderables = runPics;
-                break;
-            default:
-                renderables = idlePics;
-        }
-//        renderer().setRenderable(new AnimationRenderable(renderables, 1));
-        AnimationRenderable animationRenderable =
-                new AnimationRenderable(renderables, 1);
-        renderer().setRenderable(animationRenderable);
-    }
-
     @Override
     public void update(float deltaTime) {
         super.update(deltaTime);
@@ -111,7 +90,8 @@ public class Avatar extends GameObject {
         }
         transform().setVelocityX(xVel);
 
-        if (inputListener.isKeyPressed(KeyEvent.VK_SPACE) && getVelocity().y() == 0 && jumpIsPossible) {
+        if (inputListener.isKeyPressed(KeyEvent.VK_SPACE) &&
+                getVelocity().y() == 0 && jumpIsPossible) {
             transform().setVelocityY(VELOCITY_Y);
             updateState(JUMP_STATE);
         } else if (isNotMoving) {
@@ -125,17 +105,36 @@ public class Avatar extends GameObject {
         if (state.equals(RUN_STATE) && getVelocity().y() == 0) {
             avatarEnergy -= RUN_ENERGY;
         } else if (state.equals(JUMP_STATE)) {
-            doJump();
+            avatarEnergy -= JUMP_ENERGY;
+            notifyListeners();
         } else if (state.equals(IDLE_STATE)) {
             avatarEnergy = Math.min(avatarEnergy + REST_ENERGY, MAX_ENERGY);
         }
-        avatarState = state;
-        changeAnimation();
+        if (!avatarState.equals(state)) {
+            avatarState = state;
+            changeAnimation();
+        }
     }
 
-    private void doJump() {
-        avatarEnergy -= JUMP_ENERGY;
-        notifyListeners();
+    //todo: fix animations
+    private void changeAnimation() {
+        Renderable[] renderables;
+        switch (avatarState) {
+            case IDLE_STATE:
+                renderables = idlePics;
+                break;
+            case JUMP_STATE:
+                renderables = jumpPics;
+                break;
+            case RUN_STATE:
+                renderables = runPics;
+                break;
+            default:
+                renderables = idlePics;
+        }
+        AnimationRenderable animationRenderable =
+                new AnimationRenderable(renderables, TIME_BETWEEN_CLIPS);
+        renderer().setRenderable(animationRenderable);
     }
 
     public void addEnergyFromOtherObject(float energy) {
@@ -201,26 +200,26 @@ public class Avatar extends GameObject {
 //        // run
 //        if (state.equals(RUN_STATE) && isNotJumping) {
 //            avatarEnergy -= RUN_ENERGY;
-////            avatarState = state;
-////            changeAnimation();
-////            if (isRunningLeft)
-////                renderer().setIsFlippedHorizontally(true); // todo: flip
+/// /            avatarState = state;
+/// /            changeAnimation();
+/// /            if (isRunningLeft)
+/// /                renderer().setIsFlippedHorizontally(true); // todo: flip
 //    back
 //        }
 //        // jump
-////        if (state.equals(JUMP_STATE) && isNotJumping) {
+/// /        if (state.equals(JUMP_STATE) && isNotJumping) {
 //        else if (state.equals(JUMP_STATE)) {
 //            doJump();
-////            avatarEnergy -= JUMP_ENERGY;
-////            avatarState = state;
-////            changeAnimation();
+/// /            avatarEnergy -= JUMP_ENERGY;
+/// /            avatarState = state;
+/// /            changeAnimation();
 //        }
 //        // rest
 //        if (state.equals(IDLE_STATE)) {
 //            // todo: delay energy restoration to 1s
 //            avatarEnergy = Math.min(avatarEnergy + REST_ENERGY, MAX_ENERGY);
-////            avatarState = state;
-////            changeAnimation();
+/// /            avatarState = state;
+/// /            changeAnimation();
 //        }
 //        avatarState = state;
 //        changeAnimation();
