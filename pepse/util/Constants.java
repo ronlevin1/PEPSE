@@ -4,6 +4,7 @@ public class Constants {
     public static final int CYCLE_LENGTH = 30;
     public static final int AVATAR_HEIGHT = 50;
     public static final int COLOR_DELTA = 40;
+    public static final float GRAVITY = 600;
     /**
     sometimes u just need to mult/div by some number
      */

@@ -58,7 +58,7 @@ public class Flora {
         trunkHeight = Math.max(MIN_HEIGHT, Math.min(MAX_HEIGHT, trunkHeight));
 
         Vector2 trunkTopLeft = new Vector2(x, groundHeightAtX - trunkHeight);
-        TreeTrunk trunk = (TreeTrunk) TreeTrunk.create(trunkTopLeft,
+        Tree trunk = (Tree) Tree.create(trunkTopLeft,
                 trunkHeight);
         trunk.setTag(Constants.TREE_TRUNK);
         treeObjects.add(trunk);

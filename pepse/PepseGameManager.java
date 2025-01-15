@@ -41,10 +41,11 @@ public class PepseGameManager extends GameManager {
         // Initiate Objects
         initSky(windowDimensions);
         initSunWithHalo(windowDimensions);
-        initCloud(windowDimensions);
         Terrain terr = initTerrainWithBlock(windowDimensions);
         Avatar avatar = initAvatar(imageReader, inputListener,
                 windowController, terr);
+        initCloud(windowDimensions, avatar,
+                gameObjects()::addGameObject, gameObjects()::removeGameObject);
         initTrees(terr, avatar);
         initNight(windowDimensions);
         initUI(avatar);
@@ -114,14 +115,20 @@ public class PepseGameManager extends GameManager {
         return terr;
     }
 
-    private void initCloud(Vector2 windowDimensions) {
+    private void initCloud(Vector2 windowDimensions, Avatar avatar,
+                           Consumer<GameObject> addGameObjectCallback,
+                           Consumer<GameObject> removeGameObjectCallback) {
         // Cloud
         float cloudInitialX = -200;
         GameObject cloud = Cloud.create(new Vector2(cloudInitialX,
-                windowDimensions.y() / Constants.N_10), leftMostX, rightMostX);
+                        windowDimensions.y() / Constants.N_10), leftMostX,
+                rightMostX, addGameObjectCallback, removeGameObjectCallback);
         for (GameObject cloudObject : Cloud.getCloudObjects()) {
             cloudObject.setTag(Constants.CLOUD);
             gameObjects().addGameObject(cloudObject, Layer.BACKGROUND);
+        }
+        if (cloud instanceof AvatarListener) {
+            avatar.addListener((AvatarListener) cloud);
         }
     }
 

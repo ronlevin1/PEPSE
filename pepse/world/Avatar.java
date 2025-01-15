@@ -127,9 +127,10 @@ public class Avatar extends GameObject {
         // jump
 //        if (state.equals(JUMP_STATE) && isNotJumping) {
         if (state.equals(JUMP_STATE)) {
-            avatarEnergy -= JUMP_ENERGY;
-            avatarState = state;
-            changeAnimation();
+            doJump();
+//            avatarEnergy -= JUMP_ENERGY;
+//            avatarState = state;
+//            changeAnimation();
         }
         // rest
         if (isNotRunning && isNotJumping) {
@@ -140,9 +141,10 @@ public class Avatar extends GameObject {
         }
     }
 
-    //todo
     private void doJump() {
-//        transform().setVelocityY(VELOCITY_Y);
+        avatarEnergy -= JUMP_ENERGY;
+        avatarState = JUMP_STATE;
+        changeAnimation();
         notifyListeners();
     }
 

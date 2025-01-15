@@ -6,12 +6,11 @@ import danogl.gui.rendering.RectangleRenderable;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
 import pepse.util.ColorSupplier;
-import pepse.util.Constants;
 import pepse.world.Block;
 
 import java.awt.*;
 
-public class TreeTrunk extends GameObject {
+public class Tree extends GameObject {
     private static final Color TRUNK_COLOR = new Color(100, 50, 20);
     private static final int WIDTH = Block.SIZE;
 
@@ -27,8 +26,8 @@ public class TreeTrunk extends GameObject {
      *                      null, in which case
      *                      the GameObject will not be rendered.
      */
-    private TreeTrunk(Vector2 topLeftCorner, Vector2 dimensions,
-                      Renderable renderable) {
+    private Tree(Vector2 topLeftCorner, Vector2 dimensions,
+                 Renderable renderable) {
         super(topLeftCorner, dimensions, renderable);
         physics().preventIntersectionsFromDirection(Vector2.ZERO);
         physics().setMass(GameObjectPhysics.IMMOVABLE_MASS);
@@ -37,7 +36,7 @@ public class TreeTrunk extends GameObject {
     public static GameObject create(Vector2 topLeftCorner, int height) {
         Renderable renderable =
                 new RectangleRenderable(ColorSupplier.approximateColor(TRUNK_COLOR));
-        return new TreeTrunk(topLeftCorner, new Vector2(WIDTH, height),
+        return new Tree(topLeftCorner, new Vector2(WIDTH, height),
                 renderable);
     }
 }
