@@ -73,7 +73,7 @@ public class Avatar extends GameObject {
 
     //todo: fix animations
     private void changeAnimation() {
-        Renderable[] renderables = null;
+        Renderable[] renderables;
         switch (avatarState) {
             case IDLE_STATE:
                 renderables = idlePics;
@@ -87,9 +87,9 @@ public class Avatar extends GameObject {
             default:
                 renderables = idlePics;
         }
-        // todo: flip horizontally when running
+//        renderer().setRenderable(new AnimationRenderable(renderables, 1));
         AnimationRenderable animationRenderable =
-                new AnimationRenderable(renderables, Constants.N_2);
+                new AnimationRenderable(renderables, 1);
         renderer().setRenderable(animationRenderable);
     }
 
@@ -99,52 +99,42 @@ public class Avatar extends GameObject {
         float xVel = 0;
         boolean runIsPossible = avatarEnergy >= RUN_ENERGY;
         boolean jumpIsPossible = avatarEnergy >= JUMP_ENERGY;
-        if (inputListener.isKeyPressed(KeyEvent.VK_LEFT) && runIsPossible)
+        boolean isNotMoving = getVelocity().equals(Vector2.ZERO);
+
+        if (inputListener.isKeyPressed(KeyEvent.VK_LEFT) && runIsPossible) {
             xVel -= VELOCITY_X;
-        if (inputListener.isKeyPressed(KeyEvent.VK_RIGHT) && runIsPossible)
+            renderer().setIsFlippedHorizontally(true);
+        }
+        if (inputListener.isKeyPressed(KeyEvent.VK_RIGHT) && runIsPossible) {
             xVel += VELOCITY_X;
+            renderer().setIsFlippedHorizontally(false);
+        }
         transform().setVelocityX(xVel);
-        updateState(RUN_STATE);
-        if (inputListener.isKeyPressed(KeyEvent.VK_SPACE)
-                && getVelocity().y() == 0 && jumpIsPossible) {
+
+        if (inputListener.isKeyPressed(KeyEvent.VK_SPACE) && getVelocity().y() == 0 && jumpIsPossible) {
             transform().setVelocityY(VELOCITY_Y);
             updateState(JUMP_STATE);
+        } else if (isNotMoving) {
+            updateState(IDLE_STATE);
+        } else {
+            updateState(RUN_STATE);
         }
     }
 
     private void updateState(String state) {
-        boolean isNotRunning = getVelocity().x() == 0;
-        boolean isRunningLeft = getVelocity().x() < 0;
-        boolean isNotJumping = getVelocity().y() == 0;
-        // run
-        if (state.equals(RUN_STATE) && isNotJumping) {
+        if (state.equals(RUN_STATE) && getVelocity().y() == 0) {
             avatarEnergy -= RUN_ENERGY;
-            avatarState = state;
-            changeAnimation();
-            if (isRunningLeft)
-                renderer().setIsFlippedHorizontally(true); // todo: flip back
-        }
-        // jump
-//        if (state.equals(JUMP_STATE) && isNotJumping) {
-        if (state.equals(JUMP_STATE)) {
+        } else if (state.equals(JUMP_STATE)) {
             doJump();
-//            avatarEnergy -= JUMP_ENERGY;
-//            avatarState = state;
-//            changeAnimation();
-        }
-        // rest
-        if (isNotRunning && isNotJumping) {
-            // todo: delay energy restoration to 1s
+        } else if (state.equals(IDLE_STATE)) {
             avatarEnergy = Math.min(avatarEnergy + REST_ENERGY, MAX_ENERGY);
-            avatarState = state;
-            changeAnimation();
         }
+        avatarState = state;
+        changeAnimation();
     }
 
     private void doJump() {
         avatarEnergy -= JUMP_ENERGY;
-        avatarState = JUMP_STATE;
-        changeAnimation();
         notifyListeners();
     }
 
@@ -178,3 +168,68 @@ public class Avatar extends GameObject {
         }
     }
 }
+
+//old code
+//    @Override
+//    public void update(float deltaTime) {
+//        super.update(deltaTime);
+//        float xVel = 0;
+//        boolean runIsPossible = avatarEnergy >= RUN_ENERGY;
+//        boolean jumpIsPossible = avatarEnergy >= JUMP_ENERGY;
+//        boolean isNotMoving = getVelocity().equals(Vector2.ZERO);
+//
+//        if (inputListener.isKeyPressed(KeyEvent.VK_LEFT) && runIsPossible)
+//            xVel -= VELOCITY_X;
+//        if (inputListener.isKeyPressed(KeyEvent.VK_RIGHT) && runIsPossible)
+//            xVel += VELOCITY_X;
+//        transform().setVelocityX(xVel);
+//        updateState(RUN_STATE);
+//        if (inputListener.isKeyPressed(KeyEvent.VK_SPACE)
+//                && getVelocity().y() == 0 && jumpIsPossible) {
+//            transform().setVelocityY(VELOCITY_Y);
+//            updateState(JUMP_STATE);
+//        }
+//        if (isNotMoving) {
+//            updateState(IDLE_STATE);
+//        }
+//    }
+//
+//    private void updateState(String state) {
+//        boolean isNotRunning = getVelocity().x() == 0;
+//        boolean isRunningLeft = getVelocity().x() < 0;
+//        boolean isNotJumping = getVelocity().y() == 0;
+//        // run
+//        if (state.equals(RUN_STATE) && isNotJumping) {
+//            avatarEnergy -= RUN_ENERGY;
+////            avatarState = state;
+////            changeAnimation();
+////            if (isRunningLeft)
+////                renderer().setIsFlippedHorizontally(true); // todo: flip
+//    back
+//        }
+//        // jump
+////        if (state.equals(JUMP_STATE) && isNotJumping) {
+//        else if (state.equals(JUMP_STATE)) {
+//            doJump();
+////            avatarEnergy -= JUMP_ENERGY;
+////            avatarState = state;
+////            changeAnimation();
+//        }
+//        // rest
+//        if (state.equals(IDLE_STATE)) {
+//            // todo: delay energy restoration to 1s
+//            avatarEnergy = Math.min(avatarEnergy + REST_ENERGY, MAX_ENERGY);
+////            avatarState = state;
+////            changeAnimation();
+//        }
+//        avatarState = state;
+//        changeAnimation();
+//    }
+//
+//    private void doJump() {
+//        avatarEnergy -= JUMP_ENERGY;
+
+/// /        avatarState = JUMP_STATE;
+/// /        changeAnimation();
+//        notifyListeners();
+//    }
