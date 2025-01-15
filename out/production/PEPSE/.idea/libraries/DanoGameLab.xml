@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="DanoGameLab">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/../libs/DanoGameLab" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/../libs/DanoGameLab/src" />
+    </SOURCES>
+    <jarDirectory url="file://$PROJECT_DIR$/../libs/DanoGameLab" recursive="false" />
+  </library>
+</component>
