@@ -8,6 +8,7 @@ import danogl.components.Transition;
 import danogl.gui.rendering.RectangleRenderable;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
+import org.w3c.dom.ls.LSOutput;
 import pepse.util.ColorSupplier;
 import pepse.util.Constants;
 
@@ -56,7 +57,7 @@ public class Cloud extends GameObject implements AvatarListener {
         for (int i = 0; i < dimY; i++) {
             for (int j = 0; j < dimX; j++) {
                 if (cloud.get(j).get(i) == 1) {
-                    createSingleCloudBlock(finalX, x00, y00, i, j);
+                    createSingleCloudBlock(intitialX, finalX, x00, y00, i, j);
                 }
             }
         }
@@ -64,7 +65,9 @@ public class Cloud extends GameObject implements AvatarListener {
                 addGameObjectCallback, removeGameObjectCallback);
     }
 
-    private static void createSingleCloudBlock(int finalX, int x00, int y00,
+    private static void createSingleCloudBlock(int intitialX, int finalX,
+                                               int x00,
+                                               int y00,
                                                int i, int j) {
         Vector2 pos = new Vector2(x00 + j * Block.SIZE,
                 y00 + i * Block.SIZE);
@@ -73,14 +76,12 @@ public class Cloud extends GameObject implements AvatarListener {
                 new RectangleRenderable(ColorSupplier.approximateMonoColor(
                         BASE_CLOUD_COLOR)));
         cloudBlock.setCoordinateSpace(CoordinateSpace.CAMERA_COORDINATES);
-        //todo: fix transition values. maybe use windowDimensions?
-        new Transition<>(
+        new Transition<Float>(
                 cloudBlock, // the game object being changed
                 (x) -> cloudBlock.transform().setTopLeftCorner(
-                        new Vector2(x,
-                                cloudBlock.getTopLeftCorner().y())),
-                cloudBlock.getTopLeftCorner().x(),
-                cloudBlock.getTopLeftCorner().x() + finalX * 2,
+                        new Vector2(x, pos.y())),
+                (float) intitialX + pos.x(),
+                (float) finalX + pos.x(),
                 Transition.LINEAR_INTERPOLATOR_FLOAT,
                 30, // transition duration
                 Transition.TransitionType.TRANSITION_LOOP,
@@ -88,6 +89,19 @@ public class Cloud extends GameObject implements AvatarListener {
         );
         cloudObjects.add(cloudBlock);
     }
+    // old transition values
+//        new Transition<>(
+//                cloudBlock, // the game object being changed
+//                (x) -> cloudBlock.transform().setTopLeftCorner(
+//                        new Vector2(x,
+//                                cloudBlock.getTopLeftCorner().y())),
+//                cloudBlock.getTopLeftCorner().x(),
+//                cloudBlock.getTopLeftCorner().x() + finalX * 2,
+//                Transition.LINEAR_INTERPOLATOR_FLOAT,
+//                30, // transition duration
+//                Transition.TransitionType.TRANSITION_LOOP,
+//                null
+//        );
 
 
     public static List<GameObject> getCloudObjects() {
@@ -122,19 +136,21 @@ public class Cloud extends GameObject implements AvatarListener {
         Color rainDropColor = ColorSupplier.approximateMonoColor(
                 new Color(130, 166, 177));
         Renderable renderable = new RectangleRenderable(rainDropColor);
-        GameObject rainDrop = new GameObject(rainDropPos, dims, renderable);
-        rainDrop.setCoordinateSpace(CoordinateSpace.CAMERA_COORDINATES);
-        rainDrop.transform().setAccelerationY(Constants.GRAVITY);
+        GameObject raindrop = new GameObject(rainDropPos, dims, renderable);
+        raindrop.setCoordinateSpace(CoordinateSpace.CAMERA_COORDINATES);
+        raindrop.transform().setAccelerationY(Constants.GRAVITY);
         new Transition<>(
-                rainDrop, // the game object being changed
-                rainDrop.renderer()::setOpaqueness, // the method to call
+                raindrop, // the game object being changed
+                raindrop.renderer()::fadeOut, // the method to call
                 1f, // initial transition value
                 0f, // final transition value
                 Transition.CUBIC_INTERPOLATOR_FLOAT,
                 RAINDROP_DURATION,
                 Transition.TransitionType.TRANSITION_ONCE,
-                () -> this.removeGameObjectCallback.accept(rainDrop)
+                () -> this.removeGameObjectCallback.accept(raindrop)
         );// nothing further to execute upon reaching final value
-        this.addGameObjectCallback.accept(rainDrop);
+        this.addGameObjectCallback.accept(raindrop);
+
+        System.out.println(raindrop.getTopLeftCorner());
     }
 }

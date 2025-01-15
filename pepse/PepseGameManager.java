@@ -121,8 +121,9 @@ public class PepseGameManager extends GameManager {
         // Cloud
         float cloudInitialX = -200;
         GameObject cloud = Cloud.create(new Vector2(cloudInitialX,
-                        windowDimensions.y() / Constants.N_10), leftMostX,
-                rightMostX, addGameObjectCallback, removeGameObjectCallback);
+                        windowDimensions.y() / Constants.N_10),
+                (int) cloudInitialX, (int) (rightMostX * 1.5),
+                addGameObjectCallback, removeGameObjectCallback);
         for (GameObject cloudObject : Cloud.getCloudObjects()) {
             cloudObject.setTag(Constants.CLOUD);
             gameObjects().addGameObject(cloudObject, Layer.BACKGROUND);
