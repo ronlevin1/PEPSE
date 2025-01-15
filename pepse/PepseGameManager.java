@@ -22,17 +22,35 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
 
+/**
+ * The main class of the game. This class is responsible for initializing the game
+ * and setting up the game objects. It also contains the main method to run the game.
+ */
 public class PepseGameManager extends GameManager {
-    private Random rand = new Random();
+    private final Random rand = new Random();
     private int leftMostX;
     private int rightMostX;
 
+    // TODO: Infinite world
+
+    /**
+     * This method is called once at the beginning of the game. It is used to
+     * initialize all the game objects and set up the game.
+     * @param imageReader Contains a single method: readImage, which reads an image from disk.
+     *                 See its documentation for help.
+     * @param soundReader Contains a single method: readSound, which reads a wav file from
+     *                    disk. See its documentation for help.
+     * @param inputListener Contains a single method: isKeyPressed, which returns whether
+     *                      a given key is currently pressed by the user or not. See its
+     *                      documentation.
+     * @param windowController Contains an array of helpful, self explanatory methods
+     *                         concerning the window.
+     */
     @Override
     public void initializeGame(ImageReader imageReader,
                                SoundReader soundReader,
                                UserInputListener inputListener,
                                WindowController windowController) {
-        // todo: shorten method
         super.initializeGame(imageReader, soundReader, inputListener,
                 windowController);
         Vector2 windowDimensions = windowController.getWindowDimensions();
@@ -147,6 +165,10 @@ public class PepseGameManager extends GameManager {
         gameObjects().addGameObject(sky, Layer.BACKGROUND);
     }
 
+    /**
+     * Main method to run the game.
+     * @param args
+     */
     public static void main(String[] args) {
         new PepseGameManager().run();
     }

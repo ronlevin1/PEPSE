@@ -12,6 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Represents the terrain in the game.
+ */
 public class Terrain {
     private static final Color BASE_GROUND_COLOR =
             new Color(212, 123, 74);
@@ -20,16 +23,35 @@ public class Terrain {
     private float yMultFactor = (float) 2 / 3;
     private NoiseGenerator noiseGenerator;
 
+    /**
+     * Creates a new Terrain object.
+     *
+     * @param windowDimensions the dimensions of the window
+     * @param seed             the seed for the noise generator
+     */
     public Terrain(Vector2 windowDimensions, int seed) {
         groundHeightAtX0 = windowDimensions.y() * yMultFactor;
         noiseGenerator = new NoiseGenerator(seed, (int) groundHeightAtX0);
     }
 
+    /**
+     * Returns the height of the ground at a given x-coordinate.
+     *
+     * @param x the x-coordinate
+     * @return the height of the ground at the given x-coordinate
+     */
     public float groundHeightAt(float x) {
         float noise = (float) noiseGenerator.noise(x, Block.SIZE * 7);
         return groundHeightAtX0 + noise;
     }
 
+    /**
+     * Creates a list of blocks in the given range.
+     *
+     * @param minX the minimum x-coordinate
+     * @param maxX the maximum x-coordinate
+     * @return the list of blocks in the given range
+     */
     public List<Block> createInRange(int minX, int maxX) {
         List<Block> lst = new ArrayList<>();
         minX = (int) (Math.floor(minX / Block.SIZE) * Block.SIZE);

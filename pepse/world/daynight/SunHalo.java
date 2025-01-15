@@ -13,9 +13,18 @@ import pepse.util.Constants;
 
 import java.awt.*;
 
+/**
+ * Creates a sun halo around the sun
+ */
 public class SunHalo {
 
-    public static GameObject create(GameObject sun){
+    /**
+     * Creates a sun halo around the sun
+     *
+     * @param sun
+     * @return the sun halo
+     */
+    public static GameObject create(GameObject sun) {
         Color haloColor = new Color(255, 255, 0, 20);
         Vector2 position = sun.getTopLeftCorner();
         Vector2 sunSize = sun.getDimensions().mult(3f);
@@ -23,8 +32,8 @@ public class SunHalo {
 
         GameObject sunHalo = new GameObject(position, sunSize, renderable);
         sunHalo.setCoordinateSpace(CoordinateSpace.CAMERA_COORDINATES);
-//        sunHalo.addComponent((deltaTime -> sunHalo.setCenter(sun.getCenter())));
-        Component updateHaloPosCallback = (deltaTime -> sunHalo.setCenter(sun.getCenter()));
+        Component updateHaloPosCallback =
+                (deltaTime -> sunHalo.setCenter(sun.getCenter()));
         sunHalo.addComponent(updateHaloPosCallback);
         sunHalo.setTag("sunHalo");
         return sunHalo;

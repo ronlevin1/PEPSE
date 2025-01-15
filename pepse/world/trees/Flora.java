@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
 
+/**
+ * This class is responsible for generating trees and their components.
+ */
 public class Flora {
     private final List<List<GameObject>> trees;
     private static final double TREE_PROBABILITY = 0.1;
@@ -21,6 +24,12 @@ public class Flora {
     private final Consumer<Float> avatarEnergyConsumer;
     private Random rand = new Random();
 
+    /**
+     * Constructor for Flora.
+     *
+     * @param heightProvider       The height provider for the terrain.
+     * @param avatarEnergyConsumer The consumer for avatar energy.
+     */
     public Flora(HeightProvider heightProvider,
                  Consumer<Float> avatarEnergyConsumer) {
         this.trees = new ArrayList<>();
@@ -28,8 +37,14 @@ public class Flora {
         this.avatarEnergyConsumer = avatarEnergyConsumer;
     }
 
+    /**
+     * Creates trees in the given range.
+     *
+     * @param minX The minimum x value.
+     * @param maxX The maximum x value.
+     * @return The list of trees.
+     */
     public List<List<GameObject>> createInRange(int minX, int maxX) {
-        // todo change return val in sign?
         minX = (int) (Math.floor((double) minX / Block.SIZE) * Block.SIZE);
         maxX = (int) (Math.ceil((double) maxX / Block.SIZE) * Block.SIZE);
         int numOfCols = (maxX - minX) / Block.SIZE;
@@ -49,20 +64,15 @@ public class Flora {
     private List<GameObject> createSingleTree(int x, int groundHeightAtX) {
         List<GameObject> treeObjects = new ArrayList<>();
         // Create trunk
-        // Calculate trunk height and round to nearest multiple of Block.SIZE
-        // Ensure trunkHeight is within the range of MAX_HEIGHT and MIN_HEIGHT
         int trunkHeight =
                 (int) (rand.nextDouble() * (MAX_HEIGHT - MIN_HEIGHT) + MIN_HEIGHT);
         trunkHeight =
                 (int) (Math.round(trunkHeight / (double) Block.SIZE) * Block.SIZE);
         trunkHeight = Math.max(MIN_HEIGHT, Math.min(MAX_HEIGHT, trunkHeight));
-
         Vector2 trunkTopLeft = new Vector2(x, groundHeightAtX - trunkHeight);
-        Tree trunk = (Tree) Tree.create(trunkTopLeft,
-                trunkHeight);
+        Tree trunk = (Tree) Tree.create(trunkTopLeft, trunkHeight);
         trunk.setTag(Constants.TREE_TRUNK);
         treeObjects.add(trunk);
-
         // Calculate matrix size proportional to trunk height
         int matrixSize =
                 (int) (trunkHeight * ((double) Constants.N_2 / Constants.N_3));
@@ -70,6 +80,13 @@ public class Flora {
         int yAt00 = groundHeightAtX - trunkHeight - matrixSize / Constants.N_2;
         Random random = new Random();
 
+        generateLeavesAndFruits(matrixSize, random, xAt00, yAt00, treeObjects);
+        return treeObjects;
+    }
+
+    private void generateLeavesAndFruits(int matrixSize, Random random,
+                                         int xAt00, int yAt00,
+                                         List<GameObject> treeObjects) {
         // Generate leaves and fruits
         for (int i = 0; i < matrixSize; i += Block.SIZE) {
             for (int j = 0; j < matrixSize; j += Block.SIZE) {
@@ -90,6 +107,5 @@ public class Flora {
                 // otherwise - add nothing
             }
         }
-        return treeObjects;
     }
 }

@@ -12,6 +12,9 @@ import pepse.world.Block;
 
 import java.awt.*;
 
+/**
+ * Represents a leaf object in the game.
+ */
 public class Leaf extends GameObject {
     private static final Color LEAF_BASE_COLOR = new Color(50, 200, 30);
 
@@ -28,6 +31,11 @@ public class Leaf extends GameObject {
         new ScheduledTask(this, waitTime, true, this::moveInWind);
     }
 
+    /**
+     * Creates a leaf object at the given position.
+     * @param topLeftCorner The top left corner of the leaf.
+     * @return The created leaf object.
+     */
     public static GameObject create(Vector2 topLeftCorner) {
         Renderable renderable =
                 new RectangleRenderable(ColorSupplier.approximateColor(LEAF_BASE_COLOR, Constants.COLOR_DELTA));

@@ -10,22 +10,13 @@ import pepse.world.Block;
 
 import java.awt.*;
 
+/**
+ * Represents a tree in the game world.
+ */
 public class Tree extends GameObject {
     private static final Color TRUNK_COLOR = new Color(100, 50, 20);
     private static final int WIDTH = Block.SIZE;
 
-    /**
-     * Construct a new GameObject instance.
-     *
-     * @param topLeftCorner Position of the object, in window coordinates
-     *                      (pixels).
-     *                      Note that (0,0) is the top-left corner of the
-     *                      window.
-     * @param dimensions    Width and height in window coordinates.
-     * @param renderable    The renderable representing the object. Can be
-     *                      null, in which case
-     *                      the GameObject will not be rendered.
-     */
     private Tree(Vector2 topLeftCorner, Vector2 dimensions,
                  Renderable renderable) {
         super(topLeftCorner, dimensions, renderable);
@@ -33,6 +24,16 @@ public class Tree extends GameObject {
         physics().setMass(GameObjectPhysics.IMMOVABLE_MASS);
     }
 
+    /**
+     * Create a new tree GameObject.
+     *
+     * @param topLeftCorner Position of the object, in window coordinates
+     *                      (pixels).
+     *                      Note that (0,0) is the top-left corner of the
+     *                      window.
+     * @param height        Height of the tree in window coordinates.
+     * @return A new tree GameObject.
+     */
     public static GameObject create(Vector2 topLeftCorner, int height) {
         Renderable renderable =
                 new RectangleRenderable(ColorSupplier.approximateColor(TRUNK_COLOR));

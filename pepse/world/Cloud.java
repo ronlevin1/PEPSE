@@ -2,27 +2,29 @@ package pepse.world;
 
 
 import danogl.*;
-import danogl.collisions.Layer;
 import danogl.components.CoordinateSpace;
 import danogl.components.Transition;
-import danogl.gui.rendering.OvalRenderable;
 import danogl.gui.rendering.RectangleRenderable;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
-import org.w3c.dom.ls.LSOutput;
 import pepse.util.ColorSupplier;
 import pepse.util.Constants;
 
-import javax.security.auth.callback.Callback;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+/**
+ * A cloud in the game. The cloud is made up of multiple cloud blocks.
+ * The cloud blocks move horizontally in a looped fashion.
+ * The cloud also has a chance of creating raindrops when the avatar jumps.
+ */
 public class Cloud extends GameObject implements AvatarListener {
     private static final float RAINDROP_DURATION = 5;
     private static final Color BASE_CLOUD_COLOR = new Color(255, 255, 255);
     private static final List<GameObject> cloudObjects = new ArrayList<>();
+    public static final double RAIN_PROB = 0.3;
     Consumer<GameObject> addGameObjectCallback;
     Consumer<GameObject> removeGameObjectCallback;
 
@@ -35,6 +37,23 @@ public class Cloud extends GameObject implements AvatarListener {
         this.removeGameObjectCallback = removeGameObjectCallback;
     }
 
+    /**
+     * Creates a cloud at the given position.
+     * The cloud is made up of multiple cloud blocks.
+     * The cloud blocks move horizontally in a looped fashion.
+     * The cloud also has a chance of creating raindrops when the avatar jumps.
+     *
+     * @param topLeftCorner            The top left corner of the cloud.
+     * @param intitialX                The initial x position of the cloud
+     *                                 blocks.
+     * @param finalX                   The final x position of the cloud
+     *                                 blocks.
+     * @param addGameObjectCallback    The callback to add a game object to
+     *                                 the game.
+     * @param removeGameObjectCallback The callback to remove a game object
+     *                                 from the game.
+     * @return The cloud game object.
+     */
     public static GameObject create(Vector2 topLeftCorner, int intitialX,
                                     int finalX,
                                     Consumer<GameObject> addGameObjectCallback,
@@ -105,14 +124,23 @@ public class Cloud extends GameObject implements AvatarListener {
 //        );
 
 
+    /**
+     * Returns the list of cloud blocks that make up the cloud.
+     *
+     * @return The list of cloud blocks that make up the cloud.
+     */
     public static List<GameObject> getCloudObjects() {
         return cloudObjects;
     }
 
+    /**
+     * Called when the avatar jumps.
+     * Creates raindrops on the cloud blocks.
+     */
     @Override
     public void onAvatarJump() {
         for (GameObject cloudBlock : cloudObjects) {
-            if (Math.random() < 0.3) {
+            if (Math.random() < RAIN_PROB) {
                 createSingleRaindrop(cloudBlock.getTopLeftCorner());
                 createSingleRaindrop(cloudBlock.getTopLeftCorner());
             }
@@ -124,8 +152,8 @@ public class Cloud extends GameObject implements AvatarListener {
         float size = (float) Block.SIZE / Constants.N_3;
         Vector2 dims = new Vector2(size, size);
         Color rainDropColor = ColorSupplier.approximateMonoColor(
-                new Color(141, 229, 248, 100));
-        Renderable renderable = new OvalRenderable(rainDropColor);
+                new Color(228, 255, 250, 19));
+        Renderable renderable = new RectangleRenderable(rainDropColor);
         // object
         GameObject raindrop = new GameObject(topLeftCorner, dims, renderable);
         raindrop.setCoordinateSpace(CoordinateSpace.CAMERA_COORDINATES);

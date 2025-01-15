@@ -14,7 +14,12 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The main character of the game. This class is responsible for the avatar's
+ * movement and energy level. It also contains the main method to run the game.
+ */
 public class Avatar extends GameObject {
+    // movement constants
     private static final float VELOCITY_X = 400;
     private static final float VELOCITY_Y = -650;
     private static final float GRAVITY = 600;
@@ -37,9 +42,23 @@ public class Avatar extends GameObject {
     private static final Renderable[] runPics = new Renderable[6];
     // Observers
     private List<AvatarListener> avatarListeners = new ArrayList<>();
-
+    // Others
     private UserInputListener inputListener;
 
+    /**
+     * This method is called once at the beginning of the game. It is used to
+     * initialize all the game objects and set up the game.
+     *
+     * @param pos           The position of the avatar.
+     * @param inputListener Contains a single method: isKeyPressed, which
+     *                      returns whether
+     *                      a given key is currently pressed by the user or
+     *                      not. See its
+     *                      documentation.
+     * @param imageReader   Contains a single method: readImage, which reads
+     *                     an image from disk.
+     *                      See its documentation for help.
+     */
     public Avatar(Vector2 pos, UserInputListener inputListener,
                   ImageReader imageReader) {
         super(pos, Vector2.ONES.mult(50), null);
@@ -72,6 +91,17 @@ public class Avatar extends GameObject {
         changeAnimation();
     }
 
+    /**
+     * This method is called once per frame. It is used to update the avatar's
+     *
+     * @param deltaTime The time elapsed, in seconds, since the last frame. Can
+     *                  be used to determine a new position/velocity by
+     *                  multiplying
+     *                  this delta with the velocity/acceleration respectively
+     *                  and adding to the position/velocity:
+     *                  velocity += deltaTime*acceleration
+     *                  pos += deltaTime*velocity
+     */
     @Override
     public void update(float deltaTime) {
         super.update(deltaTime);
@@ -116,7 +146,6 @@ public class Avatar extends GameObject {
         }
     }
 
-    //todo: fix animations
     private void changeAnimation() {
         Renderable[] renderables;
         switch (avatarState) {
@@ -137,28 +166,57 @@ public class Avatar extends GameObject {
         renderer().setRenderable(animationRenderable);
     }
 
+    /**
+     * add Energy From Other Object
+     *
+     * @param energy energy to add
+     */
     public void addEnergyFromOtherObject(float energy) {
         avatarEnergy = Math.min(avatarEnergy + energy, MAX_ENERGY);
     }
 
+    /**
+     * get Avatar Energy
+     *
+     * @return avatar energy
+     */
     public float getAvatarEnergy() {
         return avatarEnergy;
     }
 
+    /**
+     * add Listener
+     *
+     * @param listener listener
+     */
     public void addListener(AvatarListener listener) {
         avatarListeners.add(listener);
     }
 
+    /**
+     * remove Listener
+     *
+     * @param listener listener
+     */
     public void removeListener(AvatarListener listener) {
         avatarListeners.remove(listener);
     }
 
+    /**
+     * notify Listeners
+     */
     public void notifyListeners() {
         for (AvatarListener listener : avatarListeners) {
             listener.onAvatarJump();
         }
     }
 
+    /**
+     * on Collision Enter
+     *
+     * @param other     other game object
+     * @param collision collision
+     */
     @Override
     public void onCollisionEnter(GameObject other, Collision collision) {
         super.onCollisionEnter(other, collision);
@@ -203,8 +261,7 @@ public class Avatar extends GameObject {
 /// /            avatarState = state;
 /// /            changeAnimation();
 /// /            if (isRunningLeft)
-/// /                renderer().setIsFlippedHorizontally(true); // todo: flip
-//    back
+/// /                renderer().setIsFlippedHorizontally(true);
 //        }
 //        // jump
 /// /        if (state.equals(JUMP_STATE) && isNotJumping) {
@@ -216,7 +273,6 @@ public class Avatar extends GameObject {
 //        }
 //        // rest
 //        if (state.equals(IDLE_STATE)) {
-//            // todo: delay energy restoration to 1s
 //            avatarEnergy = Math.min(avatarEnergy + REST_ENERGY, MAX_ENERGY);
 /// /            avatarState = state;
 /// /            changeAnimation();

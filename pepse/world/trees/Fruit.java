@@ -12,6 +12,9 @@ import pepse.util.Constants;
 import java.awt.*;
 import java.util.function.Consumer;
 
+/**
+ * Represents a fruit object in the game.
+ */
 public class Fruit extends GameObject {
     private static final Color FRUIT_COLOR = new Color(174, 28, 28);
     private static final int RADIUS = Constants.LEAF_OR_FRUIT_SIZE;
@@ -30,6 +33,14 @@ public class Fruit extends GameObject {
         this.setCollisionEnabled(true);
     }
 
+    /**
+     * Creates a fruit object at the given position.
+     *
+     * @param topLeftCorner        The top left corner of the fruit.
+     * @param avatarEnergyConsumer The consumer to consume the energy of the
+     *                            avatar.
+     * @return The fruit object.
+     */
     public static GameObject create(Vector2 topLeftCorner,
                                     Consumer<Float> avatarEnergyConsumer) {
         Renderable renderable =
@@ -38,6 +49,12 @@ public class Fruit extends GameObject {
                 renderable, avatarEnergyConsumer);
     }
 
+    /**
+     * Handles the collision of the fruit with another object.
+     *
+     * @param other     The other object.
+     * @param collision The collision.
+     */
     @Override
     public void onCollisionEnter(GameObject other, Collision collision) {
         super.onCollisionEnter(other, collision);

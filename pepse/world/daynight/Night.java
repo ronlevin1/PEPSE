@@ -11,10 +11,20 @@ import pepse.util.Constants;
 
 import java.awt.*;
 
+/**
+ * This class is responsible for creating the night object in the game.
+ */
 public class Night {
     private static final Float MIDNIGHT_OPACITY = 0.5f;
     private static final Float DAY_CYCLE = 30f;
 
+    /**
+     * Creates the night object in the game.
+     *
+     * @param windowDimensions The dimensions of the window.
+     * @param cycleLength      The length of the cycle.
+     * @return The night object.
+     */
     public static GameObject create(Vector2 windowDimensions,
                                     float cycleLength) {
         Renderable renderable =

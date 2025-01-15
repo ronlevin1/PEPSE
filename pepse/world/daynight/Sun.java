@@ -12,6 +12,9 @@ import pepse.util.Constants;
 
 import java.awt.*;
 
+/**
+ * This class is responsible for creating the sun object in the game.
+ */
 public class Sun {
 
     private static final float N_360 = 360f;
@@ -43,7 +46,8 @@ public class Sun {
                 N_360, // final transition value
                 Transition.LINEAR_INTERPOLATOR_FLOAT,// use a cubic
                 // interpolator
-                Constants.N_2 * cycleLength, // transition fully over half a day
+                Constants.N_2 * cycleLength, // transition fully over half a
+                // day
                 Transition.TransitionType.TRANSITION_LOOP, //
                 // Choose appropriate ENUM value
                 null
