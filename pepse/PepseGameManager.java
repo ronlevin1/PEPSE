@@ -38,43 +38,33 @@ public class PepseGameManager extends GameManager {
         Vector2 windowDimensions = windowController.getWindowDimensions();
         leftMostX = (int) -windowDimensions.x() / Constants.N_2;
         rightMostX = (int) windowDimensions.x();
-        // Sky
-        GameObject sky = Sky.create(windowDimensions);
-        gameObjects().addGameObject(sky, Layer.BACKGROUND);
+        // Initiate Objects
+        initSky(windowDimensions);
+        initSunWithHalo(windowDimensions);
+        initCloud(windowDimensions);
+        Terrain terr = initTerrainWithBlock(windowDimensions);
+        Avatar avatar = initAvatar(imageReader, inputListener,
+                windowController, terr);
+        initTrees(terr, avatar);
+        initNight(windowDimensions);
+        initUI(avatar);
+    }
 
-        // Sun + SunHalo
-        GameObject sun = Sun.create(windowDimensions, Constants.CYCLE_LENGTH);
-        GameObject sunHalo = SunHalo.create(sun);
-        gameObjects().addGameObject(sunHalo, Layer.BACKGROUND);
-        gameObjects().addGameObject(sun, Layer.BACKGROUND);
-        // Cloud
-        float cloudInitialX = -200;
-        GameObject cloud = Cloud.create(new Vector2(cloudInitialX,
-                windowDimensions.y() / Constants.N_10), leftMostX, rightMostX);
-        for (GameObject cloudObject : Cloud.getCloudObjects()) {
-            cloudObject.setTag(Constants.CLOUD);
-            gameObjects().addGameObject(cloudObject, Layer.BACKGROUND);
-        }
+    private void initUI(Avatar avatar) {
+        // UIManager
+        UIManager uiManager = UIManager.getInstance(Vector2.ONES,
+                Vector2.ONES.mult(50), avatar::getAvatarEnergy);
+        gameObjects().addGameObject(uiManager, Layer.UI);
+    }
 
-        // Terrain with Blocks
-        int seed = (int) (rand.nextGaussian() * Constants.N_10);
-        Terrain terr = new Terrain(windowDimensions, seed);
-        List<Block> blockList = terr.createInRange(leftMostX, rightMostX);
-        for (Block block : blockList) {
-            gameObjects().addGameObject(block, Layer.STATIC_OBJECTS);
-        }
-        // Avatar
-        float avatarX = 0; // top left corner dimensions
-        float avatarY =
-                terr.groundHeightAt(avatarX) - Constants.AVATAR_HEIGHT * Constants.N_2;
-        Avatar avatar = new Avatar(new Vector2(avatarX, avatarY),
-                inputListener,
-                imageReader);
-        setCamera(new Camera(avatar, Vector2.ZERO,
-                windowController.getWindowDimensions(),
-                windowController.getWindowDimensions()));
-        avatar.setTag(Constants.AVATAR);
-        gameObjects().addGameObject(avatar);
+    private void initNight(Vector2 windowDimensions) {
+        // Night
+        GameObject night = Night.create(windowDimensions,
+                Constants.CYCLE_LENGTH);
+        gameObjects().addGameObject(night, Layer.UI);
+    }
+
+    private void initTrees(Terrain terr, Avatar avatar) {
         // Trees
         HeightProvider groundHeightProvider = terr::groundHeightAt;
         Consumer<Float> avatarEnergyConsumer =
@@ -92,14 +82,61 @@ public class PepseGameManager extends GameManager {
                 gameObjects().addGameObject(treeObject, curLayer);
             }
         }
-        // Night
-        GameObject night = Night.create(windowDimensions,
-                Constants.CYCLE_LENGTH);
-        gameObjects().addGameObject(night, Layer.UI);
-        // UIManager
-        UIManager uiManager = UIManager.getInstance(Vector2.ONES,
-                Vector2.ONES.mult(50), avatar::getAvatarEnergy);
-        gameObjects().addGameObject(uiManager, Layer.UI);
+    }
+
+    private Avatar initAvatar(ImageReader imageReader,
+                              UserInputListener inputListener,
+                              WindowController windowController,
+                              Terrain terr) {
+        // Avatar
+        float avatarX = 0; // top left corner dimensions
+        float avatarY =
+                terr.groundHeightAt(avatarX) - Constants.AVATAR_HEIGHT * Constants.N_2;
+        Avatar avatar = new Avatar(new Vector2(avatarX, avatarY),
+                inputListener,
+                imageReader);
+        setCamera(new Camera(avatar, Vector2.ZERO,
+                windowController.getWindowDimensions(),
+                windowController.getWindowDimensions()));
+        avatar.setTag(Constants.AVATAR);
+        gameObjects().addGameObject(avatar);
+        return avatar;
+    }
+
+    private Terrain initTerrainWithBlock(Vector2 windowDimensions) {
+        // Terrain with Blocks
+        int seed = (int) (rand.nextGaussian() * Constants.N_10);
+        Terrain terr = new Terrain(windowDimensions, seed);
+        List<Block> blockList = terr.createInRange(leftMostX, rightMostX);
+        for (Block block : blockList) {
+            gameObjects().addGameObject(block, Layer.STATIC_OBJECTS);
+        }
+        return terr;
+    }
+
+    private void initCloud(Vector2 windowDimensions) {
+        // Cloud
+        float cloudInitialX = -200;
+        GameObject cloud = Cloud.create(new Vector2(cloudInitialX,
+                windowDimensions.y() / Constants.N_10), leftMostX, rightMostX);
+        for (GameObject cloudObject : Cloud.getCloudObjects()) {
+            cloudObject.setTag(Constants.CLOUD);
+            gameObjects().addGameObject(cloudObject, Layer.BACKGROUND);
+        }
+    }
+
+    private void initSunWithHalo(Vector2 windowDimensions) {
+        // Sun + SunHalo
+        GameObject sun = Sun.create(windowDimensions, Constants.CYCLE_LENGTH);
+        GameObject sunHalo = SunHalo.create(sun);
+        gameObjects().addGameObject(sunHalo, Layer.BACKGROUND);
+        gameObjects().addGameObject(sun, Layer.BACKGROUND);
+    }
+
+    private void initSky(Vector2 windowDimensions) {
+        // Sky
+        GameObject sky = Sky.create(windowDimensions);
+        gameObjects().addGameObject(sky, Layer.BACKGROUND);
     }
 
     public static void main(String[] args) {
