@@ -5,5 +5,8 @@ package pepse.util.interfaces;
  */
 @FunctionalInterface
 public interface EmptyFloatProvider {
+    /**
+     * recieve float value. no input params needed.
+     */
     float getFloat();
 }
