@@ -2,13 +2,11 @@ package pepse;
 
 import danogl.*;
 import danogl.collisions.Layer;
-import danogl.components.CoordinateSpace;
 import danogl.gui.ImageReader;
 import danogl.gui.SoundReader;
 import danogl.gui.UserInputListener;
 import danogl.gui.WindowController;
 import danogl.gui.rendering.Camera;
-import danogl.gui.rendering.TextRenderable;
 import danogl.util.Vector2;
 import pepse.util.Constants;
 import pepse.world.*;
@@ -18,10 +16,7 @@ import pepse.world.daynight.SunHalo;
 import pepse.world.trees.Flora;
 import pepse.world.trees.HeightProvider;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -36,10 +31,10 @@ public class PepseGameManager extends GameManager {
     private int WINDOW_PADDING;
     private int leftMostX;
     private int rightMostX;
-    private int[] exitingObjectsRange = new int[2];
-    Map<Float, GameObject> existingBlocks = Map.of();
-    Map<Float, List<List<GameObject>>> existingTrees = Map.of();
-    Map<Float, Float> existingGroundHeight = Map.of();
+    private final int[] exitingObjectsRange = new int[2];
+    Map<Float, List<GameObject>> existingBlocks = new HashMap<>();
+    Map<Float, List<List<GameObject>>> existingTrees = new HashMap<>();
+    Map<Float, Float> existingGroundHeight = new HashMap<>();
     private Avatar avatar;
     private Terrain terrain;
     private Flora flora;
@@ -80,7 +75,7 @@ public class PepseGameManager extends GameManager {
         // Initiate Objects
         initSky(windowDimensions);
         initSunWithHalo(windowDimensions);
-        initTerrainWithBlock(windowDimensions);
+        initTerrainWithBlocks(windowDimensions);
         initAvatar(imageReader, inputListener, windowController, terrain);
         initCloud(windowDimensions, avatar, gameObjects()::addGameObject,
                 gameObjects()::removeGameObject);
@@ -151,7 +146,7 @@ public class PepseGameManager extends GameManager {
         this.avatar = avatar;
     }
 
-    private void initTerrainWithBlock(Vector2 windowDimensions) {
+    private void initTerrainWithBlocks(Vector2 windowDimensions) {
         // Terrain with Blocks
         int seed = (int) (rand.nextGaussian() * Constants.N_10);
         this.terrain = new Terrain(windowDimensions, seed);
@@ -164,7 +159,12 @@ public class PepseGameManager extends GameManager {
             gameObjects().addGameObject(block, Layer.STATIC_OBJECTS);
             float x = block.getTopLeftCorner().x();
             float groundHeightAtX = terrain.groundHeightAt(x);
-            existingBlocks.put(x, block);
+            if (existingBlocks.containsKey(x)) {
+                existingBlocks.get(x).add(block);
+            } else {
+                List<GameObject> l = new ArrayList<>(List.of(block));
+                existingBlocks.put(x, l);
+            }
             existingGroundHeight.put(x, groundHeightAtX);
         }
     }
@@ -253,6 +253,10 @@ public class PepseGameManager extends GameManager {
             int newRightMostX = (int) (rightMostX + threshold);
             int newLeftMostX = (int) (leftMostX + threshold);
             // generate new blocks and tees to the right
+            /*
+            NOTE: to create a single column of block, send input param s.t.
+            maxX = minX + Block.SIZE
+             */
             createTerrainInRange(rightMostX, newRightMostX);
             // TODO: BUG: seems that the trees are not being generated
             // since groundHeightAtX is not being calculated correctly
