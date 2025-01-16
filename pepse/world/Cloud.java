@@ -9,6 +9,7 @@ import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
 import pepse.util.ColorSupplier;
 import pepse.util.Constants;
+import pepse.util.interfaces.AvatarListener;
 
 import java.awt.*;
 import java.util.ArrayList;

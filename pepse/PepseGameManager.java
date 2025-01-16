@@ -9,12 +9,14 @@ import danogl.gui.WindowController;
 import danogl.gui.rendering.Camera;
 import danogl.util.Vector2;
 import pepse.util.Constants;
+import pepse.util.UIManager;
+import pepse.util.interfaces.AvatarListener;
 import pepse.world.*;
 import pepse.world.daynight.Night;
 import pepse.world.daynight.Sun;
 import pepse.world.daynight.SunHalo;
 import pepse.world.trees.Flora;
-import pepse.world.trees.HeightProvider;
+import pepse.util.interfaces.HeightProvider;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -29,12 +31,14 @@ public class PepseGameManager extends GameManager {
     public static final float CLOUD_INITIAL_X = -200;
     private final Random rand = new Random();
     private int WINDOW_PADDING;
+    private float THRESHOLD_FOR_INF;
     private int leftMostX;
     private int rightMostX;
-    private final int[] exitingObjectsRange = new int[2];
+    // store existing blocks and trees
     Map<Float, List<GameObject>> existingBlocks = new HashMap<>();
     Map<Float, List<List<GameObject>>> existingTrees = new HashMap<>();
-    Map<Float, Float> existingGroundHeight = new HashMap<>();
+    Map<Float, Float> existingGroundValues = new HashMap<>();
+    // game objects
     private Avatar avatar;
     private Terrain terrain;
     private Flora flora;
@@ -68,10 +72,12 @@ public class PepseGameManager extends GameManager {
                 windowController);
         Vector2 windowDimensions = windowController.getWindowDimensions();
         WINDOW_PADDING = (int) windowDimensions.x() / Constants.N_2;
+        WINDOW_PADDING =
+                (int) ((double) (WINDOW_PADDING / Block.SIZE) * Block.SIZE);
+        THRESHOLD_FOR_INF = (float) WINDOW_PADDING;
         leftMostX = -WINDOW_PADDING;
-        rightMostX = (int) windowDimensions.x() + WINDOW_PADDING;
-        exitingObjectsRange[0] = leftMostX;
-        exitingObjectsRange[1] = rightMostX;
+        rightMostX = (int) ((Math.ceil(windowDimensions.x() / Block.SIZE) *
+                Block.SIZE) + WINDOW_PADDING);
         // Initiate Objects
         initSky(windowDimensions);
         initSunWithHalo(windowDimensions);
@@ -109,7 +115,7 @@ public class PepseGameManager extends GameManager {
 
     private void createFloraInRange(int minX, int maxX) {
         List<List<GameObject>> trees = flora.createInRange(minX, maxX);
-        float x;
+        float x = 0;
         for (List<GameObject> tree : trees) {
             for (GameObject treeObject : tree) {
                 int curLayer = Layer.DEFAULT;
@@ -117,14 +123,14 @@ public class PepseGameManager extends GameManager {
                     curLayer = Layer.STATIC_OBJECTS;
                     // store existing trees
                     x = treeObject.getTopLeftCorner().x();
-                    float groundHeightAtX = terrain.groundHeightAt(x);
-                    existingTrees.put(x, trees);
-                    existingGroundHeight.put(x, groundHeightAtX);
                 } else if (treeObject.getTag().equals(Constants.LEAF))
-                    curLayer = Layer.UI;
+                    curLayer = Layer.BACKGROUND; // todo: check
                 gameObjects().addGameObject(treeObject, curLayer);
             }
         }
+        float groundHeightAtX = terrain.groundHeightAt(x);
+        existingTrees.put(x, trees);
+        existingGroundValues.put(x, groundHeightAtX);
     }
 
     private void initAvatar(ImageReader imageReader,
@@ -165,7 +171,7 @@ public class PepseGameManager extends GameManager {
                 List<GameObject> l = new ArrayList<>(List.of(block));
                 existingBlocks.put(x, l);
             }
-            existingGroundHeight.put(x, groundHeightAtX);
+            existingGroundValues.put(x, groundHeightAtX);
         }
     }
 
@@ -204,99 +210,121 @@ public class PepseGameManager extends GameManager {
      * This method is called once per frame. It is used to update the game
      *
      * @param deltaTime The time, in seconds, that passed since the last
-     *                  invocation
-     *                  of this method (i.e., since the last frame). This is
-     *                  useful
-     *                  for either accumulating the total time that passed
-     *                  since some
-     *                  event, or for physics integration (i.e., multiply
-     *                  this by
-     *                  the acceleration to get an estimate of the added
-     *                  velocity or
-     *                  by the velocity to get an estimate of the difference
-     *                  in position).
+     *                  invocation of this method (i.e., since the last
+     *                  frame). This is useful for either accumulating the
+     *                  total time that passed since some event, or for
+     *                  physics integration (i.e., multiply this by the
+     *                  acceleration to get an estimate of the added
+     *                  velocity or by the velocity to get an estimate of
+     *                  the difference in position).
      */
     @Override
     public void update(float deltaTime) {
         super.update(deltaTime);
-//        System.out.println(avatar.getCenter().x());
-        infiniteWorldHandler();
-    }
-
-    // TODO: Infinite world
-    private void infiniteWorldHandler() {
-        /*
-        idea notes.
-        store all game object in 2 maps:
-        - (x, groundHeightAtX) -> List<List<GameObject>> trees
-        - (x, groundHeightAtX) -> List<GameObject> block
-        use update to get avatar x position.
-        compare avatar x position to some threshold for left and right:
-        - if under threshold to the right,
-            generate new blocks and trees to the right
-            remove blocks and trees to the left
-        - if under threshold to the left,
-            generate new blocks and trees to the left
-            remove blocks and trees to the right
-        use the maps to get the blocks and trees to remove and add.
-        use Terrain.createInRange and Flora.createInRange to generate new
-        blocks and trees.
-         */
-        float threshold = (float) WINDOW_PADDING;
+        // check if avatar pos is under threshold, call infiniteWorldHandler.
         boolean underRightThreshold =
-                (Math.abs(avatar.getCenter().x() - rightMostX) < threshold);
+                (Math.abs(avatar.getCenter().x() - rightMostX) < THRESHOLD_FOR_INF);
         boolean underLeftThreshold =
-                (Math.abs(avatar.getCenter().x() - leftMostX) < threshold);
-        if (underRightThreshold) {
-            // todo: first check if new range is within the old world bounds
-            //  and needs to be recreated from old objects
-            int newRightMostX = (int) (rightMostX + threshold);
-            int newLeftMostX = (int) (leftMostX + threshold);
-            // generate new blocks and tees to the right
-            /*
-            NOTE: to create a single column of block, send input param s.t.
-            maxX = minX + Block.SIZE
-             */
-            createTerrainInRange(rightMostX, newRightMostX);
-            // TODO: BUG: seems that the trees are not being generated
-            // since groundHeightAtX is not being calculated correctly
-            createFloraInRange(newLeftMostX, leftMostX);
-            // remove blocks and trees to the left
-            // ...
-            //todo
-            rightMostX = newRightMostX;
-            leftMostX = newLeftMostX;
+                (Math.abs(avatar.getCenter().x() - leftMostX) < THRESHOLD_FOR_INF);
+        if (underRightThreshold || underLeftThreshold) {
+            infiniteWorldHandler();
         }
-        // left
-        if (underLeftThreshold) {
-            int newRightMostX = (int) (rightMostX - threshold);
-            int newLeftMostX = (int) (leftMostX - threshold);
-            // generate new blocks and trees to the left
-//            for (Block block : terrain.createInRange(rightMostX,
-//                    newRightMostX)) {
-//                gameObjects().addGameObject(block, Layer.STATIC_OBJECTS);
-//            }
-//            for (List<GameObject> tree : flora.createInRange(newLeftMostX,
-//                    leftMostX)) {
-//                for (GameObject treeObject : tree) {
-//                    int curLayer = Layer.DEFAULT;
-//                    if (treeObject.getTag().equals(Constants.TREE_TRUNK))
-//                        curLayer = Layer.STATIC_OBJECTS;
-//                    else if (treeObject.getTag().equals(Constants.LEAF))
-//                        curLayer = Layer.UI;
-//                    gameObjects().addGameObject(treeObject, curLayer);
-//                }
-//            }
-            // remove blocks and trees to the right
-            //todo
-            rightMostX = newRightMostX;
-            leftMostX = newLeftMostX;
-        }
-        // update exiting objects range
-        exitingObjectsRange[0] = Math.min(leftMostX, exitingObjectsRange[0]);
-        exitingObjectsRange[1] = Math.max(rightMostX, exitingObjectsRange[1]);
+        // todo: refresh night to be on top of everything
     }
 
+    /**
+     * idea notes:
+     * store all game object in 2 maps:
+     * - (x, groundHeightAtX) -> List<List<GameObject>> trees
+     * - (x, groundHeightAtX) -> List<GameObject> block
+     * use update to get avatar x position.
+     * compare avatar x position to some threshold for left and right:
+     * - if under threshold to the right,
+     * generate new blocks and trees to the right
+     * remove blocks and trees to the left
+     * - if under threshold to the left,
+     * generate new blocks and trees to the left
+     * remove blocks and trees to the right
+     * use the maps to get the blocks and trees to remove and add.
+     * use Terrain.createInRange and Flora.createInRange to generate new
+     * blocks and trees.
+     */
+    private void infiniteWorldHandler() {
+        boolean underRightThreshold =
+                (Math.abs(avatar.getCenter().x() - rightMostX) < THRESHOLD_FOR_INF);
+//        boolean underLeftThreshold =
+//                (Math.abs(avatar.getCenter().x() - leftMostX) <
+//                THRESHOLD_FOR_INF);
+//        if (underRightThreshold || underLeftThreshold) {
+        int direction = underRightThreshold ? 1 : -1;
+        int newRightMostX =
+                rightMostX + (int) (direction * THRESHOLD_FOR_INF);
+        int newLeftMostX =
+                leftMostX + (int) (direction * THRESHOLD_FOR_INF);
+        // Add blocks and trees
+        int initialAddX = (direction == 1 ? rightMostX : newLeftMostX);
+        int finalAddX = (direction == 1 ? newRightMostX : leftMostX);
+        for (int x = initialAddX; x < finalAddX; x += Block.SIZE) {
+            if (existingGroundValues.containsKey((float) x)) {
+                recoverObjectsInRange(x, x + Block.SIZE);
+            } else {
+                createTerrainInRange(x, x + Block.SIZE);
+                createFloraInRange(x, x + Block.SIZE);
+            }
+        }
+        // remove blocks and trees
+        int initialRemoveX = (direction == 1 ? leftMostX : rightMostX);
+        int finalRemoveX = (direction == 1 ? newLeftMostX : newRightMostX);
+        for (int x = initialRemoveX; x < finalRemoveX; x += Block.SIZE) {
+            removeObjectsInRange(x, x + Block.SIZE);
+        }
+        rightMostX = newRightMostX;
+        leftMostX = newLeftMostX;
+//        }
+    }
+
+    private void recoverObjectsInRange(int minX, int maxX) {
+        for (float x = minX; x < maxX; x += Block.SIZE) {
+            if (existingBlocks.containsKey(x)) {
+                List<GameObject> blocks = existingBlocks.get(x);
+                for (GameObject block : blocks) {
+                    gameObjects().addGameObject(block, Layer.STATIC_OBJECTS);
+                }
+            }
+            if (existingTrees.containsKey(x)) {
+                List<List<GameObject>> trees = existingTrees.get(x);
+                for (List<GameObject> tree : trees) {
+                    for (GameObject treeObject : tree) {
+                        int curLayer = Layer.DEFAULT;
+                        if (treeObject.getTag().equals(Constants.TREE_TRUNK))
+                            curLayer = Layer.STATIC_OBJECTS;
+                        else if (treeObject.getTag().equals(Constants.LEAF))
+                            curLayer = Layer.FOREGROUND;
+                        gameObjects().addGameObject(treeObject, curLayer);
+                    }
+                }
+            }
+        }
+    }
+
+    private void removeObjectsInRange(int minX, int MaxX) {
+        for (float x = minX; x < MaxX; x += Block.SIZE) {
+            if (existingBlocks.containsKey(x)) {
+                List<GameObject> blocks = existingBlocks.get(x);
+                for (GameObject block : blocks) {
+                    gameObjects().removeGameObject(block);
+                }
+            }
+            if (existingTrees.containsKey(x)) {
+                List<List<GameObject>> trees = existingTrees.get(x);
+                for (List<GameObject> tree : trees) {
+                    for (GameObject treeObject : tree) {
+                        gameObjects().removeGameObject(treeObject);
+                    }
+                }
+            }
+        }
+    }
 
     /**
      * Main method to run the game.
@@ -307,3 +335,48 @@ public class PepseGameManager extends GameManager {
         new PepseGameManager().run();
     }
 }
+
+// old code of infiniteWorldHandler
+//        // right
+//        if (underRightThreshold) {
+//            int newRightMostX = (int) (rightMostX + threshold);
+//            int newLeftMostX = (int) (leftMostX + threshold);
+//            // iterate cols in step of Block.SIZE
+//            for (int x = rightMostX; x < newRightMostX; x += Block.SIZE) {
+//                if (existingGroundValues.containsKey((float) x)) {
+//                    recoverObjectsInRange(x, x + Block.SIZE);
+//                } else {
+//                    // generate new blocks and trees
+//                    createTerrainInRange(x, x + Block.SIZE);
+//                    createFloraInRange(x, x + Block.SIZE);
+//                }
+//            }
+//            // remove blocks and trees to the left
+//            for (int x = leftMostX; x < newLeftMostX; x += Block.SIZE) {
+//                removeObjectsInRange(x, x + Block.SIZE);
+//            }
+//            rightMostX = newRightMostX;
+//            leftMostX = newLeftMostX;
+//        }
+//
+//        // left
+//        if (underLeftThreshold) {
+//            int newRightMostX = (int) (rightMostX - threshold);
+//            int newLeftMostX = (int) (leftMostX - threshold);
+//            // generate new blocks and tees to the left.
+//            for (int x = newLeftMostX; x < leftMostX; x += Block.SIZE) {
+//                if (existingGroundValues.containsKey((float) x)) {
+//                    recoverObjectsInRange(x, x + Block.SIZE);
+//                } else {
+//                    // generate new blocks and trees
+//                    createTerrainInRange(x, x + Block.SIZE);
+//                    createFloraInRange(x, x + Block.SIZE);
+//                }
+//            }
+//            // remove blocks and trees to the right
+//            for (int x = rightMostX; x < newRightMostX; x += Block.SIZE) {
+//                removeObjectsInRange(x, x + Block.SIZE);
+//            }
+//            rightMostX = newRightMostX;
+//            leftMostX = newLeftMostX;
+//        }

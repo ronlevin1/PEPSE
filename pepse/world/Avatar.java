@@ -9,6 +9,7 @@ import danogl.gui.rendering.ImageRenderable;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
 import pepse.util.Constants;
+import pepse.util.interfaces.AvatarListener;
 
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
@@ -56,7 +57,7 @@ public class Avatar extends GameObject {
      *                      not. See its
      *                      documentation.
      * @param imageReader   Contains a single method: readImage, which reads
-     *                     an image from disk.
+     *                      an image from disk.
      *                      See its documentation for help.
      */
     public Avatar(Vector2 pos, UserInputListener inputListener,
@@ -220,6 +221,8 @@ public class Avatar extends GameObject {
     @Override
     public void onCollisionEnter(GameObject other, Collision collision) {
         super.onCollisionEnter(other, collision);
+        // NOTE: this doesnt solve the problem of avatar entering beneath
+        // first block layer.
         if (other.getTag().equals(Constants.BLOCK)) {
             this.transform().setVelocityY(0);
         }

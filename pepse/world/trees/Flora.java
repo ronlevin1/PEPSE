@@ -3,6 +3,7 @@ package pepse.world.trees;
 import danogl.GameObject;
 import danogl.util.Vector2;
 import pepse.util.Constants;
+import pepse.util.interfaces.HeightProvider;
 import pepse.world.Block;
 
 import java.util.ArrayList;
@@ -70,7 +71,7 @@ public class Flora {
                 (int) (Math.round(trunkHeight / (double) Block.SIZE) * Block.SIZE);
         trunkHeight = Math.max(MIN_HEIGHT, Math.min(MAX_HEIGHT, trunkHeight));
         Vector2 trunkTopLeft = new Vector2(x, groundHeightAtX - trunkHeight);
-        Tree trunk = (Tree) Tree.create(trunkTopLeft, trunkHeight);
+        TreeTrunk trunk = (TreeTrunk) TreeTrunk.create(trunkTopLeft, trunkHeight);
         trunk.setTag(Constants.TREE_TRUNK);
         treeObjects.add(trunk);
         // Calculate matrix size proportional to trunk height
@@ -79,8 +80,8 @@ public class Flora {
         int xAt00 = x - matrixSize / Constants.N_2; // shift left
         int yAt00 = groundHeightAtX - trunkHeight - matrixSize / Constants.N_2;
         Random random = new Random();
-
         generateLeavesAndFruits(matrixSize, random, xAt00, yAt00, treeObjects);
+
         return treeObjects;
     }
 

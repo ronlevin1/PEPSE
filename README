@@ -1,0 +1,34 @@
+ron.levin1
+316409572
+
+--- Answers ---
+
+Tree Package:
+* I implemented 4 classes within the package:
+1.	Fruit, which represents a fruit object in the game.
+2.	Leaf, which is responsible for the leaf object in the game.
+3.	TreeTrunk, which represents the tree trunk object.
+4.	Flora, creates objects from the above three classes and assembles a
+    complete tree.
+* All of the different tree objects are being hold in a list in the Flora class.
+* This isn't 100% accurate, but the Flora class uses something that resembles
+to the Factory design pattern to create different tree components.
+The createSingleTree method in Flora is responsible for creating and assembling
+these components into a complete tree.
+This pattern allows for the encapsulation of the objects creation process and
+makes it easier to manage the creation logic for different tree components.
+
+Cloud implementation:
+I implemented the Cloud class, which is responsible for creating and managing
+the cloud objects in the game.
+The Cloud class has a list of cloud objects, each one is a small block-like GameObject.
+This class implements AvatarListener interface, which allows it to 'listen' to
+the avatars jumps and make rain fall accordingly. This is according to the
+'Observer' design pattern.
+
+General design decisions:
+Other than that, I tried to keep the code clean and modular, with each class
+having a single responsibility.
+In order to allow different object interact and be related to each other, I used
+Callbacks and Lambdas being passed as parameters to some classes. This is more
+of a Functional programming approach, rather than a design pattern.
