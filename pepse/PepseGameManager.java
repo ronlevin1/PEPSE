@@ -18,32 +18,50 @@ import pepse.world.daynight.SunHalo;
 import pepse.world.trees.Flora;
 import pepse.world.trees.HeightProvider;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.function.Consumer;
 
 /**
- * The main class of the game. This class is responsible for initializing the game
- * and setting up the game objects. It also contains the main method to run the game.
+ * The main class of the game. This class is responsible for initializing
+ * the game
+ * and setting up the game objects. It also contains the main method to run
+ * the game.
  */
 public class PepseGameManager extends GameManager {
+    public static final float CLOUD_INITIAL_X = -200;
     private final Random rand = new Random();
+    private int WINDOW_PADDING;
     private int leftMostX;
     private int rightMostX;
+    private int[] exitingObjectsRange = new int[2];
+    Map<Float, GameObject> existingBlocks = Map.of();
+    Map<Float, List<List<GameObject>>> existingTrees = Map.of();
+    Map<Float, Float> existingGroundHeight = Map.of();
+    private Avatar avatar;
+    private Terrain terrain;
+    private Flora flora;
 
-    // TODO: Infinite world
 
     /**
      * This method is called once at the beginning of the game. It is used to
      * initialize all the game objects and set up the game.
-     * @param imageReader Contains a single method: readImage, which reads an image from disk.
-     *                 See its documentation for help.
-     * @param soundReader Contains a single method: readSound, which reads a wav file from
-     *                    disk. See its documentation for help.
-     * @param inputListener Contains a single method: isKeyPressed, which returns whether
-     *                      a given key is currently pressed by the user or not. See its
-     *                      documentation.
-     * @param windowController Contains an array of helpful, self explanatory methods
+     *
+     * @param imageReader      Contains a single method: readImage, which
+     *                         reads an image from disk.
+     *                         See its documentation for help.
+     * @param soundReader      Contains a single method: readSound, which
+     *                         reads a wav file from
+     *                         disk. See its documentation for help.
+     * @param inputListener    Contains a single method: isKeyPressed, which
+     *                         returns whether
+     *                         a given key is currently pressed by the user
+     *                         or not. See its
+     *                         documentation.
+     * @param windowController Contains an array of helpful, self
+     *                         explanatory methods
      *                         concerning the window.
      */
     @Override
@@ -54,17 +72,19 @@ public class PepseGameManager extends GameManager {
         super.initializeGame(imageReader, soundReader, inputListener,
                 windowController);
         Vector2 windowDimensions = windowController.getWindowDimensions();
-        leftMostX = (int) -windowDimensions.x() / Constants.N_2;
-        rightMostX = (int) windowDimensions.x();
+        WINDOW_PADDING = (int) windowDimensions.x() / Constants.N_2;
+        leftMostX = -WINDOW_PADDING;
+        rightMostX = (int) windowDimensions.x() + WINDOW_PADDING;
+        exitingObjectsRange[0] = leftMostX;
+        exitingObjectsRange[1] = rightMostX;
         // Initiate Objects
         initSky(windowDimensions);
         initSunWithHalo(windowDimensions);
-        Terrain terr = initTerrainWithBlock(windowDimensions);
-        Avatar avatar = initAvatar(imageReader, inputListener,
-                windowController, terr);
-        initCloud(windowDimensions, avatar,
-                gameObjects()::addGameObject, gameObjects()::removeGameObject);
-        initTrees(terr, avatar);
+        initTerrainWithBlock(windowDimensions);
+        initAvatar(imageReader, inputListener, windowController, terrain);
+        initCloud(windowDimensions, avatar, gameObjects()::addGameObject,
+                gameObjects()::removeGameObject);
+        initTrees(terrain, avatar);
         initNight(windowDimensions);
         initUI(avatar);
     }
@@ -88,25 +108,34 @@ public class PepseGameManager extends GameManager {
         HeightProvider groundHeightProvider = terr::groundHeightAt;
         Consumer<Float> avatarEnergyConsumer =
                 avatar::addEnergyFromOtherObject;
-        Flora flora = new Flora(groundHeightProvider, avatarEnergyConsumer);
-        List<List<GameObject>> trees = flora.createInRange(leftMostX,
-                rightMostX);
+        this.flora = new Flora(groundHeightProvider, avatarEnergyConsumer);
+        createFloraInRange(leftMostX, rightMostX);
+    }
+
+    private void createFloraInRange(int minX, int maxX) {
+        List<List<GameObject>> trees = flora.createInRange(minX, maxX);
+        float x;
         for (List<GameObject> tree : trees) {
             for (GameObject treeObject : tree) {
                 int curLayer = Layer.DEFAULT;
-                if (treeObject.getTag().equals(Constants.TREE_TRUNK))
+                if (treeObject.getTag().equals(Constants.TREE_TRUNK)) {
                     curLayer = Layer.STATIC_OBJECTS;
-                else if (treeObject.getTag().equals(Constants.LEAF))
+                    // store existing trees
+                    x = treeObject.getTopLeftCorner().x();
+                    float groundHeightAtX = terrain.groundHeightAt(x);
+                    existingTrees.put(x, trees);
+                    existingGroundHeight.put(x, groundHeightAtX);
+                } else if (treeObject.getTag().equals(Constants.LEAF))
                     curLayer = Layer.UI;
                 gameObjects().addGameObject(treeObject, curLayer);
             }
         }
     }
 
-    private Avatar initAvatar(ImageReader imageReader,
-                              UserInputListener inputListener,
-                              WindowController windowController,
-                              Terrain terr) {
+    private void initAvatar(ImageReader imageReader,
+                            UserInputListener inputListener,
+                            WindowController windowController,
+                            Terrain terr) {
         // Avatar
         float avatarX = 0; // top left corner dimensions
         float avatarY =
@@ -119,28 +148,34 @@ public class PepseGameManager extends GameManager {
                 windowController.getWindowDimensions()));
         avatar.setTag(Constants.AVATAR);
         gameObjects().addGameObject(avatar);
-        return avatar;
+        this.avatar = avatar;
     }
 
-    private Terrain initTerrainWithBlock(Vector2 windowDimensions) {
+    private void initTerrainWithBlock(Vector2 windowDimensions) {
         // Terrain with Blocks
         int seed = (int) (rand.nextGaussian() * Constants.N_10);
-        Terrain terr = new Terrain(windowDimensions, seed);
-        List<Block> blockList = terr.createInRange(leftMostX, rightMostX);
+        this.terrain = new Terrain(windowDimensions, seed);
+        createTerrainInRange(leftMostX, rightMostX);
+    }
+
+    private void createTerrainInRange(int minX, int maxX) {
+        List<Block> blockList = terrain.createInRange(minX, maxX);
         for (Block block : blockList) {
             gameObjects().addGameObject(block, Layer.STATIC_OBJECTS);
+            float x = block.getTopLeftCorner().x();
+            float groundHeightAtX = terrain.groundHeightAt(x);
+            existingBlocks.put(x, block);
+            existingGroundHeight.put(x, groundHeightAtX);
         }
-        return terr;
     }
 
     private void initCloud(Vector2 windowDimensions, Avatar avatar,
                            Consumer<GameObject> addGameObjectCallback,
                            Consumer<GameObject> removeGameObjectCallback) {
         // Cloud
-        float cloudInitialX = -200;
-        GameObject cloud = Cloud.create(new Vector2(cloudInitialX,
+        GameObject cloud = Cloud.create(new Vector2(CLOUD_INITIAL_X,
                         windowDimensions.y() / Constants.N_10),
-                (int) cloudInitialX, (int) (rightMostX * 1.5),
+                (int) CLOUD_INITIAL_X, (int) (rightMostX),
                 addGameObjectCallback, removeGameObjectCallback);
         for (GameObject cloudObject : Cloud.getCloudObjects()) {
             cloudObject.setTag(Constants.CLOUD);
@@ -166,7 +201,102 @@ public class PepseGameManager extends GameManager {
     }
 
     /**
+     * This method is called once per frame. It is used to update the game
+     *
+     * @param deltaTime The time, in seconds, that passed since the last
+     *                  invocation
+     *                  of this method (i.e., since the last frame). This is
+     *                  useful
+     *                  for either accumulating the total time that passed
+     *                  since some
+     *                  event, or for physics integration (i.e., multiply
+     *                  this by
+     *                  the acceleration to get an estimate of the added
+     *                  velocity or
+     *                  by the velocity to get an estimate of the difference
+     *                  in position).
+     */
+    @Override
+    public void update(float deltaTime) {
+        super.update(deltaTime);
+//        System.out.println(avatar.getCenter().x());
+        infiniteWorldHandler();
+    }
+
+    // TODO: Infinite world
+    private void infiniteWorldHandler() {
+        /*
+        idea notes.
+        store all game object in 2 maps:
+        - (x, groundHeightAtX) -> List<List<GameObject>> trees
+        - (x, groundHeightAtX) -> List<GameObject> block
+        use update to get avatar x position.
+        compare avatar x position to some threshold for left and right:
+        - if under threshold to the right,
+            generate new blocks and trees to the right
+            remove blocks and trees to the left
+        - if under threshold to the left,
+            generate new blocks and trees to the left
+            remove blocks and trees to the right
+        use the maps to get the blocks and trees to remove and add.
+        use Terrain.createInRange and Flora.createInRange to generate new
+        blocks and trees.
+         */
+        float threshold = (float) WINDOW_PADDING;
+        boolean underRightThreshold =
+                (Math.abs(avatar.getCenter().x() - rightMostX) < threshold);
+        boolean underLeftThreshold =
+                (Math.abs(avatar.getCenter().x() - leftMostX) < threshold);
+        if (underRightThreshold) {
+            // todo: first check if new range is within the old world bounds
+            //  and needs to be recreated from old objects
+            int newRightMostX = (int) (rightMostX + threshold);
+            int newLeftMostX = (int) (leftMostX + threshold);
+            // generate new blocks and tees to the right
+            createTerrainInRange(rightMostX, newRightMostX);
+            // TODO: BUG: seems that the trees are not being generated
+            // since groundHeightAtX is not being calculated correctly
+            createFloraInRange(newLeftMostX, leftMostX);
+            // remove blocks and trees to the left
+            // ...
+            //todo
+            rightMostX = newRightMostX;
+            leftMostX = newLeftMostX;
+        }
+        // left
+        if (underLeftThreshold) {
+            int newRightMostX = (int) (rightMostX - threshold);
+            int newLeftMostX = (int) (leftMostX - threshold);
+            // generate new blocks and trees to the left
+//            for (Block block : terrain.createInRange(rightMostX,
+//                    newRightMostX)) {
+//                gameObjects().addGameObject(block, Layer.STATIC_OBJECTS);
+//            }
+//            for (List<GameObject> tree : flora.createInRange(newLeftMostX,
+//                    leftMostX)) {
+//                for (GameObject treeObject : tree) {
+//                    int curLayer = Layer.DEFAULT;
+//                    if (treeObject.getTag().equals(Constants.TREE_TRUNK))
+//                        curLayer = Layer.STATIC_OBJECTS;
+//                    else if (treeObject.getTag().equals(Constants.LEAF))
+//                        curLayer = Layer.UI;
+//                    gameObjects().addGameObject(treeObject, curLayer);
+//                }
+//            }
+            // remove blocks and trees to the right
+            //todo
+            rightMostX = newRightMostX;
+            leftMostX = newLeftMostX;
+        }
+        // update exiting objects range
+        exitingObjectsRange[0] = Math.min(leftMostX, exitingObjectsRange[0]);
+        exitingObjectsRange[1] = Math.max(rightMostX, exitingObjectsRange[1]);
+    }
+
+
+    /**
      * Main method to run the game.
+     *
      * @param args
      */
     public static void main(String[] args) {
