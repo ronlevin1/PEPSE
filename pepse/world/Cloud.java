@@ -25,7 +25,7 @@ public class Cloud extends GameObject implements AvatarListener {
     private static final float RAINDROP_DURATION = 5;
     private static final Color BASE_CLOUD_COLOR = new Color(255, 255, 255);
     private static final List<GameObject> cloudObjects = new ArrayList<>();
-    public static final double RAIN_PROB = 0.3;
+    private static final double RAIN_PROB = 0.3;
     Consumer<GameObject> addGameObjectCallback;
     Consumer<GameObject> removeGameObjectCallback;
 
