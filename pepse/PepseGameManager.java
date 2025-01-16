@@ -28,7 +28,7 @@ import java.util.function.Consumer;
  * the game.
  */
 public class PepseGameManager extends GameManager {
-    public static final float CLOUD_INITIAL_X = -200;
+    private static final float CLOUD_INITIAL_X = -200;
     private final Random rand = new Random();
     private int WINDOW_PADDING;
     private float THRESHOLD_FOR_INF;
