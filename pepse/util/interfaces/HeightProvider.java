@@ -6,5 +6,8 @@ package pepse.util.interfaces;
  */
 @FunctionalInterface
 public interface HeightProvider {
+    /**
+     * get the value of some function executed on input x.
+     */
     float getFloat(float x);
 }
