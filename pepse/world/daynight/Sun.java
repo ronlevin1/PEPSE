@@ -21,6 +21,9 @@ public class Sun {
     private static final int SUN_RADIUS = 120;
     private static final int CYCLE_RADIUS = 420;
 
+    /**
+     * create a sun object
+     */
     public static GameObject create(Vector2 windowDimensions,
                                     float cycleLength) {
         Renderable renderable =
