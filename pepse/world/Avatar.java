@@ -34,7 +34,7 @@ public class Avatar extends GameObject {
     private static final String RUN_STATE = "run";
     private static final String JUMP_STATE = "jump";
     private static final String IDLE_STATE = "idle";
-    public static final double TIME_BETWEEN_CLIPS = 0.2;
+    private static final double TIME_BETWEEN_CLIPS = 0.2;
     // state variables
     private float avatarEnergy = MAX_ENERGY;
     private String avatarState;
