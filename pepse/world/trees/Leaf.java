@@ -38,7 +38,9 @@ public class Leaf extends GameObject {
      */
     public static GameObject create(Vector2 topLeftCorner) {
         Renderable renderable =
-                new RectangleRenderable(ColorSupplier.approximateColor(LEAF_BASE_COLOR, Constants.COLOR_DELTA));
+                new RectangleRenderable(
+                    ColorSupplier.approximateColor(
+                        LEAF_BASE_COLOR, Constants.COLOR_DELTA));
         return new Leaf(topLeftCorner, renderable);
     }
 
