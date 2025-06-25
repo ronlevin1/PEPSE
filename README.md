@@ -1,7 +1,7 @@
 # PEPSE - A 2D Platformer Game
 
 **Short description:**  
-PEPSE is a 2D platformer game built in Java. It features a dynamic world with a day-night cycle, terrain, trees, and clouds. The player controls an avatar that can run and jump through this world.
+Environmental Procedural Simulator, Super-Mario-like-style built in Java. It features a dynamic world with a day-night cycle, terrain, trees, and clouds. The player controls an avatar that can eat fruits, run and jump through this world.
 
 ## Features
 - 🔧 **Dynamic 2D World:** The game generates a world with a sky that changes from day to night, terrain to traverse, and flora.
