@@ -12,6 +12,8 @@ PEPSE is a 2D platformer game built in Java. It features a dynamic world with a 
 ![Game Screenshot](assets/idle_0.png)
 
 ## Getting Started
+Note: This project is build upon DanoGameLab library which was provided during OOP course in the Hebrew University of Jerusalem. I have uploaded it to this repo, but you will probably will have to install it independently.
+
 Clone the repo and run:
 
 ```bash
